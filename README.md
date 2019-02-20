@@ -1,6 +1,6 @@
 # Recurrent Visual Attention
 
-This is a **PyTorch** implementation of [Recurrent Models of Visual Attention](https://arxiv.org/abs/1406.6247) by *Volodymyr Mnih, Nicolas Heess, Alex Graves and Koray Kavukcuoglu*.
+This is a **PyTorch** implementation of [Recurrent Models of Visual Attention](https://arxiv.org/abs/1406.6247) by *Volodymyr Mnih, Nicolas Heess, Alex Graves and Koray Kavukcuoglu*, and modified from https://github.com/kevinzakka/recurrent-visual-attention. We test the dynamics of the agent, determin if it is driven by fractional dynamics. Hopefully, the fractional motion can be a model for Reinforcement learning part to enhance the performance.
 
 <p align="center">
  <img src="./plots/bbox.png" alt="Drawing", width=60%>
