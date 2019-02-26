@@ -3,7 +3,8 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-#plt.rcParams['animation.ffmpeg_path'] = '/usr/local/bin/ffmpeg/4.1'
+plt.rcParams['animation.ffmpeg_path'] = 'ffmpeg'
+
 from utils import denormalize, bounding_box
 
 

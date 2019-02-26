@@ -14,7 +14,7 @@ from tqdm import tqdm
 from utils import AverageMeter
 from model import RecurrentAttention
 from tensorboard_logger import configure, log_value
-import scipy
+import scipy.io as sio
 
 class Trainer(object):
     """
@@ -320,7 +320,7 @@ class Trainer(object):
                             "wb"
                         )
                     )
-                    scipy.io.savemat(self.plot_dir + "data_train_{}.mat".format(epoch+1),
+                    sio.savemat(self.plot_dir + "data_train_{}.mat".format(epoch+1),
                         mdict={'location':locs,'patch':imgs})
 
                 # log to tensorboard
@@ -443,13 +443,18 @@ class Trainer(object):
             # initialize location vector and hidden state
             self.batch_size = x.shape[0]
             h_t, l_t = self.reset()
+            
+            # save images and glimpse location
             locs = [];    
+            imgs = [];
+            imgs.append(x[0:9])
+
             # extract the glimpses
             for t in range(self.num_glimpses - 1):
                 # forward pass through model
                 h_t, l_t, b_t, p = self.model(x, l_t, h_t)
                 # store
-                locs.append(l_t[0:9])
+                locs.append(l_t[0:9])                
 
             # last iteration
             h_t, l_t, b_t, log_probas, p = self.model(
@@ -465,29 +470,28 @@ class Trainer(object):
             correct += pred.eq(y.data.view_as(pred)).cpu().sum()
             
             # dump test data
-            if plot:
-                    if self.use_gpu:
-                        #imgs = [g.cpu().data.numpy().squeeze() for g in imgs]
-                        locs = [l.cpu().data.numpy() for l in locs]
-                    else:
-                        #imgs = [g.data.numpy().squeeze() for g in imgs]
-                        locs = [l.data.numpy() for l in locs]
-                    """
-                    pickle.dump(
-                        imgs, open(
-                            self.plot_dir + "g_{}.p".format(epoch+1),
-                            "wb"
-                        )
-                    )
-                    """
-                    pickle.dump(
-                        locs, open(
-                            self.plot_dir + "l_{}.p".format(epoch+1),
-                            "wb"
-                        )
-                    )
-                    scipy.io.savemat(self.plot_dir + "test_transient_{}.mat".format(epoch+1),
-                        mdict={'location':locs})
+            if self.use_gpu:
+                imgs = [g.cpu().data.numpy().squeeze() for g in imgs]
+                locs = [l.cpu().data.numpy() for l in locs]
+            else:
+                imgs = [g.data.numpy().squeeze() for g in imgs]
+                locs = [l.data.numpy() for l in locs]
+            
+            pickle.dump(
+                imgs, open(
+                    self.plot_dir + "g_test.p",
+                    "wb"
+                )
+            )
+            
+            pickle.dump(
+                locs, open(
+                    self.plot_dir + "l_test.p",
+                    "wb"
+                )
+            )
+            sio.savemat(self.plot_dir + "test_transient.mat",
+                mdict={'location':locs})
 
         perc = (100. * correct) / (self.num_test)
         error = 100 - perc

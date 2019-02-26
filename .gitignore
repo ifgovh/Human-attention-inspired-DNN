@@ -5,6 +5,8 @@ data/raw/
 logs/
 ckpt/
 .DS_Store
+*.py~
+*.mat
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
