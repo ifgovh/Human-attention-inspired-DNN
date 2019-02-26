@@ -18,7 +18,7 @@ class retina(object):
 
     Args
     ----
-    - x: a 4D Tensor of shape (B, H, W, C). The minibatch
+    - x: a 4D Tensor of shape (B, H, W, C). The minibatch Batch, Channels, Height, Width
       of images.
     - l: a 2D Tensor of shape (B, 2). Contains normalized
       coordinates in the range [-1, 1].
@@ -171,13 +171,13 @@ class glimpse_network(nn.Module):
 
     Args
     ----
-    - h_g: hidden layer size of the fc layer for `phi`.
-    - h_l: hidden layer size of the fc layer for `l`.
+    - h_g: hidden layer size of the fc layer for `phi`. image patch
+    - h_l: hidden layer size of the fc layer for `l`. patch location
     - g: size of the square patches in the glimpses extracted
       by the retina.
     - k: number of patches to extract per glimpse.
     - s: scaling factor that controls the size of successive patches.
-    - c: number of channels in each image.
+    - c: number of channels in each image.c
     - x: a 4D Tensor of shape (B, H, W, C). The minibatch
       of images.
     - l_t_prev: a 2D tensor of shape (B, 2). Contains the glimpse

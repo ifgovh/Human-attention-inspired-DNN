@@ -119,7 +119,7 @@ class Trainer(object):
         # )
         self.optimizer = optim.Adam(
             self.model.parameters(), lr=3e-4,
-        )
+        ) # change learning rate here, adaptive?
 
     def reset(self):
         """
