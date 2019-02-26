@@ -10,7 +10,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 def get_train_valid_loader(data_dir,
                            batch_size,
                            random_seed,
-                           dataset_name='MNIST',
+                           dataset_name,
                            valid_size=0.1,
                            shuffle=True,
                            show_sample=False,
@@ -81,11 +81,13 @@ def get_train_valid_loader(data_dir,
             num_workers=num_workers, pin_memory=pin_memory,
         )
     elif dataset_name == 'ImageNet':        
+        traindir = os.path.join(data_dir, 'train')
+        valdir = os.path.join(data_dir, 'val')
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                          std=[0.229, 0.224, 0.225])
 
-        dataset = datasets.ImageFolder(
-            data_dir,
+        train_dataset = datasets.ImageFolder(
+            traindir,
             transforms.Compose([
                 transforms.RandomResizedCrop(224),
                 transforms.RandomHorizontalFlip(),
@@ -93,28 +95,24 @@ def get_train_valid_loader(data_dir,
                 normalize,
             ]))
 
-        num_train = len(dataset)
-        indices = list(range(num_train))
-        split = int(np.floor(valid_size * num_train))
-
-        if shuffle:
-            np.random.seed(random_seed)
-            np.random.shuffle(indices)
-
-        train_idx, valid_idx = indices[split:], indices[:split]
-
-        train_sampler = SubsetRandomSampler(train_idx)
-        valid_sampler = SubsetRandomSampler(valid_idx)
+        if not shuffle:
+            train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
+        else:
+            train_sampler = None
 
         train_loader = torch.utils.data.DataLoader(
-            dataset, batch_size=batch_size, sampler=train_sampler,
-            num_workers=num_workers, pin_memory=pin_memory,
-        )
+            train_dataset, batch_size=batch_size, shuffle=(train_sampler is None),
+            num_workers=num_workers, pin_memory=True, sampler=train_sampler)
 
-        valid_loader = torch.utils.data.DataLoader(
-            dataset, batch_size=batch_size, sampler=valid_sampler,
-            num_workers=num_workers, pin_memory=pin_memory,
-        )
+        val_loader = torch.utils.data.DataLoader(
+            datasets.ImageFolder(valdir, transforms.Compose([
+                transforms.Resize(256),
+                transforms.CenterCrop(224),
+                transforms.ToTensor(),
+                normalize,
+            ])),
+            batch_size=batch_size, shuffle=False,
+            num_workers=num_workers, pin_memory=True)
     import pdb; pdb.set_trace()
     # visualize some images
     if show_sample:
