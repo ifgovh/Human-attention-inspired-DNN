@@ -1,4 +1,5 @@
 import numpy as np
+import os
 from utils import plot_images
 
 import torch
@@ -85,7 +86,7 @@ def get_train_valid_loader(data_dir,
         valdir = os.path.join(data_dir, 'val')
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                          std=[0.229, 0.224, 0.225])
-
+        import pdb; pdb.set_trace()
         train_dataset = datasets.ImageFolder(
             traindir,
             transforms.Compose([
