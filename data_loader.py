@@ -10,6 +10,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 def get_train_valid_loader(data_dir,
                            batch_size,
                            random_seed,
+                           dataset_name='MNIST',
                            valid_size=0.1,
                            shuffle=True,
                            show_sample=False,
@@ -27,6 +28,7 @@ def get_train_valid_loader(data_dir,
     - data_dir: path directory to the dataset.
     - batch_size: how many samples per batch to load.
     - random_seed: fix seed for reproducibility.
+    - dataset_name: the name of dataset, can be MNIST or ImageNet
     - valid_size: percentage split of the training set used for
       the validation set. Should be a float in the range [0, 1].
       In the paper, this number is set to 0.1.
@@ -51,33 +53,69 @@ def get_train_valid_loader(data_dir,
     ])
 
     # load dataset
-    dataset = datasets.MNIST(
-        data_dir, train=True, download=True, transform=trans
-    )
+    if dataset_name == 'MNIST':
+        dataset = datasets.MNIST(
+            data_dir, train=True, download=True, transform=trans
+        )
 
-    num_train = len(dataset)
-    indices = list(range(num_train))
-    split = int(np.floor(valid_size * num_train))
+        num_train = len(dataset)
+        indices = list(range(num_train))
+        split = int(np.floor(valid_size * num_train))
 
-    if shuffle:
-        np.random.seed(random_seed)
-        np.random.shuffle(indices)
+        if shuffle:
+            np.random.seed(random_seed)
+            np.random.shuffle(indices)
 
-    train_idx, valid_idx = indices[split:], indices[:split]
+        train_idx, valid_idx = indices[split:], indices[:split]
 
-    train_sampler = SubsetRandomSampler(train_idx)
-    valid_sampler = SubsetRandomSampler(valid_idx)
+        train_sampler = SubsetRandomSampler(train_idx)
+        valid_sampler = SubsetRandomSampler(valid_idx)
 
-    train_loader = torch.utils.data.DataLoader(
-        dataset, batch_size=batch_size, sampler=train_sampler,
-        num_workers=num_workers, pin_memory=pin_memory,
-    )
+        train_loader = torch.utils.data.DataLoader(
+            dataset, batch_size=batch_size, sampler=train_sampler,
+            num_workers=num_workers, pin_memory=pin_memory,
+        )
 
-    valid_loader = torch.utils.data.DataLoader(
-        dataset, batch_size=batch_size, sampler=valid_sampler,
-        num_workers=num_workers, pin_memory=pin_memory,
-    )
+        valid_loader = torch.utils.data.DataLoader(
+            dataset, batch_size=batch_size, sampler=valid_sampler,
+            num_workers=num_workers, pin_memory=pin_memory,
+        )
+    elif dataset_name == 'ImageNet':        
+        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                         std=[0.229, 0.224, 0.225])
 
+        dataset = datasets.ImageFolder(
+            data_dir,
+            transforms.Compose([
+                transforms.RandomResizedCrop(224),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                normalize,
+            ]))
+
+        num_train = len(dataset)
+        indices = list(range(num_train))
+        split = int(np.floor(valid_size * num_train))
+
+        if shuffle:
+            np.random.seed(random_seed)
+            np.random.shuffle(indices)
+
+        train_idx, valid_idx = indices[split:], indices[:split]
+
+        train_sampler = SubsetRandomSampler(train_idx)
+        valid_sampler = SubsetRandomSampler(valid_idx)
+
+        train_loader = torch.utils.data.DataLoader(
+            dataset, batch_size=batch_size, sampler=train_sampler,
+            num_workers=num_workers, pin_memory=pin_memory,
+        )
+
+        valid_loader = torch.utils.data.DataLoader(
+            dataset, batch_size=batch_size, sampler=valid_sampler,
+            num_workers=num_workers, pin_memory=pin_memory,
+        )
+    import pdb; pdb.set_trace()
     # visualize some images
     if show_sample:
         sample_loader = torch.utils.data.DataLoader(
