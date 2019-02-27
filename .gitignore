@@ -9,6 +9,7 @@ ckpt/
 .DS_Store
 *.py~
 *.mat
+*.zip
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
