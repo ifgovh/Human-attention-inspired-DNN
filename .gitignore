@@ -2,6 +2,8 @@
 *.mp4
 data/processed/
 data/raw/
+data/train/
+data/val/
 logs/
 ckpt/
 .DS_Store

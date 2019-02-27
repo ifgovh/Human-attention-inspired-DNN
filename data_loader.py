@@ -1,4 +1,5 @@
 import numpy as np
+import os
 from utils import plot_images
 
 import torch
@@ -50,9 +51,8 @@ def get_train_valid_loader(data_dir,
     normalize = transforms.Normalize((0.1307,), (0.3081,))
     trans = transforms.Compose([
         transforms.ToTensor(), normalize,
-    ])
-
-    # load dataset
+    ])    
+    # load dataset    
     if dataset_name == 'MNIST':
         dataset = datasets.MNIST(
             data_dir, train=True, download=True, transform=trans
@@ -80,6 +80,7 @@ def get_train_valid_loader(data_dir,
             dataset, batch_size=batch_size, sampler=valid_sampler,
             num_workers=num_workers, pin_memory=pin_memory,
         )
+        
     elif dataset_name == 'ImageNet':        
         traindir = os.path.join(data_dir, 'train')
         valdir = os.path.join(data_dir, 'val')
@@ -94,17 +95,21 @@ def get_train_valid_loader(data_dir,
                 transforms.ToTensor(),
                 normalize,
             ]))
-
+        # this sampler block has bug! You cannot shuffle it!
         if not shuffle:
+            torch.distributed.init_process_group(backend='gloo',
+                init_method='tcp://224.66.41.62:23456',
+                world_size=1)
+            #ref: https://github.com/pytorch/examples/blob/e0d33a69bec3eb4096c265451dbb85975eb961ea/imagenet/main.py#L113-L126
             train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
         else:
             train_sampler = None
-
+        
         train_loader = torch.utils.data.DataLoader(
             train_dataset, batch_size=batch_size, shuffle=(train_sampler is None),
             num_workers=num_workers, pin_memory=True, sampler=train_sampler)
 
-        val_loader = torch.utils.data.DataLoader(
+        valid_loader = torch.utils.data.DataLoader(
             datasets.ImageFolder(valdir, transforms.Compose([
                 transforms.Resize(256),
                 transforms.CenterCrop(224),
@@ -112,12 +117,15 @@ def get_train_valid_loader(data_dir,
                 normalize,
             ])),
             batch_size=batch_size, shuffle=False,
-            num_workers=num_workers, pin_memory=True)
-    import pdb; pdb.set_trace()
+            num_workers=num_workers, pin_memory=True)        
+    else:
+       raise ValueError("[!] Please input correct dataset_name.")
+    
     # visualize some images
     if show_sample:
         sample_loader = torch.utils.data.DataLoader(
-            dataset, batch_size=9, shuffle=shuffle,
+            dataset = dataset if dataset_name == 'MNIST' else train_dataset, 
+            batch_size=9, shuffle=shuffle,
             num_workers=num_workers, pin_memory=pin_memory
         )
         data_iter = iter(sample_loader)
