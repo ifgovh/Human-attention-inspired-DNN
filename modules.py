@@ -83,7 +83,7 @@ class retina(object):
         -------
         - patch: a 4D Tensor of shape (B, size, size, C)
         """
-        B, C, H, W = x.shape
+        B, C, H, W = x.shape        
 
         # denormalize coords of patch center
         coords = self.denormalize(H, l)
@@ -199,8 +199,7 @@ class glimpse_network(nn.Module):
 
         # location layer
         D_in = 2
-        self.fc2 = nn.Linear(D_in, h_l)
-
+        self.fc2 = nn.Linear(D_in, h_l)        
         self.fc3 = nn.Linear(h_g, h_g+h_l)
         self.fc4 = nn.Linear(h_l, h_g+h_l)
 
@@ -211,7 +210,7 @@ class glimpse_network(nn.Module):
         # flatten location vector
         l_t_prev = l_t_prev.view(l_t_prev.size(0), -1)
 
-        # feed phi and l to respective fc layers
+        # feed phi and l to respective fc layers        
         phi_out = F.relu(self.fc1(phi))
         l_out = F.relu(self.fc2(l_t_prev))
 
@@ -262,8 +261,9 @@ class core_network(nn.Module):
 
         self.i2h = nn.Linear(input_size, hidden_size)
         self.h2h = nn.Linear(hidden_size, hidden_size)
-
+        #import pdb; pdb.set_trace()
     def forward(self, g_t, h_t_prev):
+        #import pdb; pdb.set_trace()
         h1 = self.i2h(g_t)
         h2 = self.h2h(h_t_prev)
         h_t = F.relu(h1 + h2)

@@ -63,9 +63,16 @@ class Trainer(object):
                 self.num_valid = len(self.valid_loader)
         else:
             self.test_loader = data_loader
-            self.num_test = len(self.test_loader.dataset)
-        self.num_classes = 10
-        self.num_channels = 1
+            self.num_test = len(self.test_loader.dataset)        
+                
+        # assign numer of channels and classes of images in this dataset, maybe there is more robust way
+        if config.dataset_name == 'MNIST':
+            self.num_channels = 1
+            self.num_classes = 10
+        elif config.dataset_name == 'ImageNet':
+            self.num_channels = 3
+            self.num_classes = 1000
+
 
         # training params
         self.epochs = config.epochs
