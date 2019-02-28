@@ -49,7 +49,7 @@ class Trainer(object):
         # reinforce params
         self.std = config.std
         self.M = config.M
-
+        import pdb; pdb.set_trace()
         # data params
         if config.is_train:
             self.train_loader = data_loader[0]
@@ -60,7 +60,7 @@ class Trainer(object):
             elif config.dataset_name == 'ImageNet':
                 # the ImageNet cannot be sampled, otherwise this part will be wrong.
                 self.num_train = len(self.train_loader)
-                self.num_valid = len(self.valid_loader)
+                self.num_valid = len(self.valid_loader)                
         else:
             self.test_loader = data_loader
             self.num_test = len(self.test_loader.dataset)        
@@ -313,7 +313,7 @@ class Trainer(object):
                 pbar.update(self.batch_size)
 
                 # dump the glimpses and locs
-                if plot:
+                if plot:                    
                     if self.use_gpu:
                         imgs = [g.cpu().data.numpy().squeeze() for g in imgs]
                         locs = [l.cpu().data.numpy() for l in locs]
@@ -340,7 +340,8 @@ class Trainer(object):
                     iteration = epoch*len(self.train_loader) + i
                     log_value('train_loss', losses.avg, iteration)
                     log_value('train_acc', accs.avg, iteration)
-
+                import pdb; pdb.set_trace()
+            import pdb; pdb.set_trace()
             return losses.avg, accs.avg
 
     def validate(self, epoch):

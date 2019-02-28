@@ -6,6 +6,7 @@ data/train/
 data/val/
 logs/
 ckpt/
+PBSout_GPU/
 .DS_Store
 *.py~
 *.mat
