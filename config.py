@@ -75,6 +75,17 @@ train_arg.add_argument('--lr_patience', type=int, default=10,
 train_arg.add_argument('--train_patience', type=int, default=50,
                        help='Number of epochs to wait before stopping train')
 
+# distributed params
+distr_arg = add_argument_group('Training Params')
+distr_arg.add_argument('--distributed', type=str2bool, default=True,
+                       help='Whether to distributed the computation')
+distr_arg.add_argument('--rank', type=int, default=0,
+                       help='Rank of the current process.')
+distr_arg.add_argument('--world_size', type=int, default=4,
+                       help='Number of processes participating in the job')
+distr_arg.add_argument('--backend', type=str, default='gloo',
+                       help='The backend to use. Depending on build-time configurations, valid values include mpi, gloo, and nccl. ')
+
 
 # other params
 misc_arg = add_argument_group('Misc.')

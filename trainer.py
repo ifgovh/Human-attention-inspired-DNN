@@ -339,9 +339,8 @@ class Trainer(object):
                 if self.use_tensorboard:
                     iteration = epoch*len(self.train_loader) + i
                     log_value('train_loss', losses.avg, iteration)
-                    log_value('train_acc', accs.avg, iteration)
-                import pdb; pdb.set_trace()
-            import pdb; pdb.set_trace()
+                    log_value('train_acc', accs.avg, iteration)                
+            
             return losses.avg, accs.avg
 
     def validate(self, epoch):

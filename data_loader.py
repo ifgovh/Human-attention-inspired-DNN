@@ -10,9 +10,8 @@ from torch.utils.data.sampler import SubsetRandomSampler
 
 def get_train_valid_loader(data_dir,
                            batch_size,
-                           random_seed,
-                           dataset_name,
-                           distributed,
+                           random_seed,                           
+                           config,
                            valid_size=0.1,
                            shuffle=True,
                            show_sample=False,
@@ -30,8 +29,7 @@ def get_train_valid_loader(data_dir,
     - data_dir: path directory to the dataset.
     - batch_size: how many samples per batch to load.
     - random_seed: fix seed for reproducibility.
-    - dataset_name: the name of dataset, can be MNIST or ImageNet
-    - distributed: whether to distribute thw work to mulitple processes
+    - config: all parameters, not so elegent here, but for conviency. Let's do so.    
     - valid_size: percentage split of the training set used for
       the validation set. Should be a float in the range [0, 1].
       In the paper, this number is set to 0.1.
@@ -97,12 +95,25 @@ def get_train_valid_loader(data_dir,
                 transforms.ToTensor(),
                 normalize,
             ]))
-        #import pdb; pdb.set_trace()
-        # this sampler block has bug! You cannot distribute it yet!
+            
         if distributed:
-            # The distributed package needs to be initialized using the torch.distributed.init_process_group() function before calling any other methods.
-            # backend nccl for GPU; gloo for CPU; I found CPU is faster.
-            torch.distributed.init_process_group(backend='gloo',init_method='tcp://127.0.0.1:23456',world_size=1,rank=0)
+            # see onenote for details to initialize distributed package
+            first_ethernet_interface = os.listdir('/sys/class/net/')[-2]
+
+            # export GLOO_SOCKET_IFNAME=eth0 or NCCL_SOCKET_IFNAME=eth0
+            if config.backen == 'gloo'
+                os.environ["GLOO_SOCKET_IFNAME"] = first_ethernet_interface
+            elif config.backend == 'nccl':
+                os.environ["NCCL_SOCKET_IFNAME"] = first_ethernet_interface
+            else:
+                raise ValueError("[!] Please input correct backen for distributed computation.")
+
+            # 127.0.0.1:23456 is local host's aribitray port
+            torch.distributed.init_process_group(backend=config.backend,
+                init_method='tcp://127.0.0.1:23456',
+                world_size=config.world_size,
+                rank=config.rank)
+
             train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
         else:
             train_sampler = None
@@ -122,7 +133,7 @@ def get_train_valid_loader(data_dir,
             num_workers=num_workers, pin_memory=True)        
     else:
        raise ValueError("[!] Please input correct dataset_name.")
-    
+    import pdb; pdb.set_trace()
     # visualize some images
     if show_sample:
         sample_loader = torch.utils.data.DataLoader(
