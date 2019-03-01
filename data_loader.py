@@ -12,6 +12,7 @@ def get_train_valid_loader(data_dir,
                            batch_size,
                            random_seed,
                            dataset_name,
+                           distributed,
                            valid_size=0.1,
                            shuffle=True,
                            show_sample=False,
@@ -30,6 +31,7 @@ def get_train_valid_loader(data_dir,
     - batch_size: how many samples per batch to load.
     - random_seed: fix seed for reproducibility.
     - dataset_name: the name of dataset, can be MNIST or ImageNet
+    - distributed: whether to distribute thw work to mulitple processes
     - valid_size: percentage split of the training set used for
       the validation set. Should be a float in the range [0, 1].
       In the paper, this number is set to 0.1.
@@ -95,12 +97,12 @@ def get_train_valid_loader(data_dir,
                 transforms.ToTensor(),
                 normalize,
             ]))
-        import pdb; pdb.set_trace()
-        # this sampler block has bug! You cannot shuffle it!
-        if not shuffle:
+        #import pdb; pdb.set_trace()
+        # this sampler block has bug! You cannot distribute it yet!
+        if distributed:
             # The distributed package needs to be initialized using the torch.distributed.init_process_group() function before calling any other methods.
             # backend nccl for GPU; gloo for CPU; I found CPU is faster.
-            torch.distributed.init_process_group(backend='gloo')
+            torch.distributed.init_process_group(backend='gloo',init_method='tcp://127.0.0.1:23456',world_size=1,rank=0)
             train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
         else:
             train_sampler = None
