@@ -53,7 +53,7 @@ def get_train_valid_loader(data_dir,
         transforms.ToTensor(), normalize,
     ])    
     # load dataset    
-    if dataset_name == 'MNIST':
+    if config.dataset_name == 'MNIST':
         dataset = datasets.MNIST(
             data_dir, train=True, download=True, transform=trans
         )
@@ -81,7 +81,7 @@ def get_train_valid_loader(data_dir,
             num_workers=num_workers, pin_memory=pin_memory,
         )
         
-    elif dataset_name == 'ImageNet':        
+    elif config.dataset_name == 'ImageNet':        
         traindir = os.path.join(data_dir, 'train')
         valdir = os.path.join(data_dir, 'val')
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -95,13 +95,13 @@ def get_train_valid_loader(data_dir,
                 transforms.ToTensor(),
                 normalize,
             ]))
-            
-        if distributed:
+        import pdb; pdb.set_trace()    
+        if config.distributed:
             # see onenote for details to initialize distributed package
             first_ethernet_interface = os.listdir('/sys/class/net/')[-2]
 
             # export GLOO_SOCKET_IFNAME=eth0 or NCCL_SOCKET_IFNAME=eth0
-            if config.backen == 'gloo'
+            if config.backend == 'gloo':
                 os.environ["GLOO_SOCKET_IFNAME"] = first_ethernet_interface
             elif config.backend == 'nccl':
                 os.environ["NCCL_SOCKET_IFNAME"] = first_ethernet_interface
@@ -113,7 +113,7 @@ def get_train_valid_loader(data_dir,
                 init_method='tcp://127.0.0.1:23456',
                 world_size=config.world_size,
                 rank=config.rank)
-
+            import pdb; pdb.set_trace()
             train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
         else:
             train_sampler = None
