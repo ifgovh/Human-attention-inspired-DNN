@@ -80,6 +80,9 @@ class Trainer(object):
         self.momentum = config.momentum
         self.lr = config.init_lr
 
+        # distributed params
+        self.distributed = config.distributed
+
         # misc params
         self.use_gpu = config.use_gpu
         self.best = config.best
@@ -116,6 +119,11 @@ class Trainer(object):
             self.num_channels, self.loc_hidden, self.glimpse_hidden,
             self.std, self.hidden_size, self.num_classes,
         )
+
+        # distributed computation
+        if self.distributed:
+            self.model = torch.nn.parallel.DistributedDataParallelCPU(self.model)
+
         if self.use_gpu:
             self.model.cuda()
 
@@ -170,6 +178,8 @@ class Trainer(object):
         )
 
         for epoch in range(self.start_epoch, self.epochs):
+            if self.distributed:
+                train_sampler.set_epoch(epoch)
 
             print(
                 '\nEpoch: {}/{} - LR: {:.6f}'.format(
@@ -223,6 +233,10 @@ class Trainer(object):
         accs = AverageMeter()
 
         tic = time.time()
+
+        for i, (x, y) in enumerate(self.train_loader):
+            print(i)
+        import pdb; pdb_trace()
         with tqdm(total=self.num_train) as pbar:
             for i, (x, y) in enumerate(self.train_loader):
                 if self.use_gpu:
