@@ -54,13 +54,13 @@ class Trainer(object):
         if config.is_train:
             self.train_loader = data_loader[0]
             self.valid_loader = data_loader[1]
-            #if config.dataset_name == 'MNIST':
-            self.num_train = len(self.train_loader.sampler.indices)
-            self.num_valid = len(self.valid_loader.sampler.indices)
-            #elif config.dataset_name == 'ImageNet':
+            if config.dataset_name == 'MNIST':
+            	self.num_train = len(self.train_loader.sampler.indices)
+            	self.num_valid = len(self.valid_loader.sampler.indices)
+            elif config.dataset_name == 'ImageNet':
                 # the ImageNet cannot be sampled, otherwise this part will be wrong.
-                # self.num_train = len(self.train_loader)
-                # self.num_valid = len(self.valid_loader)                
+                self.num_train = len(self.train_loader)
+                self.num_valid = len(self.valid_loader)                                
         else:
             self.test_loader = data_loader
             self.num_test = len(self.test_loader.dataset)        
@@ -179,7 +179,7 @@ class Trainer(object):
 
         for epoch in range(self.start_epoch, self.epochs):
             if self.distributed:
-                train_sampler.set_epoch(epoch)
+                self.train_loader.sampler.set_epoch(epoch)
 
             print(
                 '\nEpoch: {}/{} - LR: {:.6f}'.format(
@@ -233,10 +233,8 @@ class Trainer(object):
         accs = AverageMeter()
 
         tic = time.time()
-
-        for i, (x, y) in enumerate(self.train_loader):
-            print(i)
-        import pdb; pdb_trace()
+        counter = [];
+        
         with tqdm(total=self.num_train) as pbar:
             for i, (x, y) in enumerate(self.train_loader):
                 if self.use_gpu:

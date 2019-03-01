@@ -37,7 +37,23 @@ def main(config):
     # either train
     if config.is_train:
         save_config(config)
-        trainer.train()
+        if config.distributed:
+            """
+            Spawning a number of subprocesses to perform some function can be 
+            done by creating Process instances and calling join to wait for their
+            completion. This approach works fine when dealing with a single subprocess 
+            but presents potential issues when dealing with multiple processes.
+            Namely, joining processes sequentially implies they will terminate 
+            sequentially. If they don’t, and the first process does not terminate, 
+            the process termination will go unnoticed. Also, there are no native 
+            facilities for error propagation.
+            The spawn function below addresses these concerns and takes care of 
+            error propagation, out of order termination, and will actively terminate 
+            processes upon detecting an error in one of them.
+            """
+            torch.multiprocessing.spawn(trainer.train())
+        else:
+            trainer.train()
 
     # or load a pretrained model and test
     else:
