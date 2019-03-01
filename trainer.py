@@ -54,13 +54,13 @@ class Trainer(object):
         if config.is_train:
             self.train_loader = data_loader[0]
             self.valid_loader = data_loader[1]
-            if config.dataset_name == 'MNIST':
-                self.num_train = len(self.train_loader.sampler.indices)
-                self.num_valid = len(self.valid_loader.sampler.indices)
-            elif config.dataset_name == 'ImageNet':
+            #if config.dataset_name == 'MNIST':
+            self.num_train = len(self.train_loader.sampler.indices)
+            self.num_valid = len(self.valid_loader.sampler.indices)
+            #elif config.dataset_name == 'ImageNet':
                 # the ImageNet cannot be sampled, otherwise this part will be wrong.
-                self.num_train = len(self.train_loader)
-                self.num_valid = len(self.valid_loader)                
+                # self.num_train = len(self.train_loader)
+                # self.num_valid = len(self.valid_loader)                
         else:
             self.test_loader = data_loader
             self.num_test = len(self.test_loader.dataset)        

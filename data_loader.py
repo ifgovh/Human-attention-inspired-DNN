@@ -98,10 +98,9 @@ def get_train_valid_loader(data_dir,
         import pdb; pdb.set_trace()
         # this sampler block has bug! You cannot shuffle it!
         if not shuffle:
-            torch.distributed.init_process_group(backend='gloo',
-                init_method='tcp://224.66.41.62:23456',
-                world_size=1)
-            #ref: https://github.com/pytorch/examples/blob/e0d33a69bec3eb4096c265451dbb85975eb961ea/imagenet/main.py#L113-L126
+            # The distributed package needs to be initialized using the torch.distributed.init_process_group() function before calling any other methods.
+            # backend nccl for GPU; gloo for CPU; I found CPU is faster.
+            torch.distributed.init_process_group(backend='gloo')
             train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
         else:
             train_sampler = None
