@@ -4,11 +4,14 @@ data/processed/
 data/raw/
 data/train/
 data/val/
+data/train_sample/
+data/valid_sample/
 logs/
 ckpt/
 PBSout_GPU/
 .DS_Store
 *.py~
+*.m~
 *.mat
 *.zip
 

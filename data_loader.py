@@ -82,8 +82,8 @@ def get_train_valid_loader(data_dir,
         )
         
     elif dataset_name == 'ImageNet':        
-        traindir = os.path.join(data_dir, 'train')
-        valdir = os.path.join(data_dir, 'val')
+        traindir = os.path.join(data_dir, 'train_sample')
+        valdir = os.path.join(data_dir, 'valid_sample')
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                          std=[0.229, 0.224, 0.225])
         

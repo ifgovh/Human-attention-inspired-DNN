@@ -3,7 +3,7 @@
 #PBS -N simple_python
 #PBS -q defaultQ 
 #PBS -l select=1:ncpus=2:mem=16gb
-#PBS -l walltime=50:59:59
+#PBS -l walltime=100:59:59
 #PBS -e PBSout_GPU/P_err_av
 #PBS -o PBSout_GPU/P_out_av
 ##PBS -J 1-5
