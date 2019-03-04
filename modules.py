@@ -83,24 +83,23 @@ class retina(object):
         -------
         - patch: a 4D Tensor of shape (B, size, size, C)
         """
-        B, C, H, W = x.shape        
-        import pdb; pdb.set_trace()
+        B, C, H, W = x.shape                
         # calculate coordinate for each batch samle (padding considered)
         from_x, from_y = l[:, 0], l[:, 1]
         # normalize size
         size_norm = size/H
 
         # build fluid-flow grid
-        tempx = torch.arange(0,(size-1)*size_norm,size_norm).unsqueeze(1).expand(-1,B) + from_x.expand(size,-1)
-        tempy = torch.arange(0,(size-1)*size_norm,size_norm).unsqueeze(1).expand(-1,B) + from_y.expand(size,-1)
-        grid = torch.empty(B,size,size,2)
+        tempx = torch.arange(0,size*size_norm,size_norm).unsqueeze(1).expand(-1,B) + from_x.expand(size,-1)
+        tempy = torch.arange(0,size*size_norm,size_norm).unsqueeze(1).expand(-1,B) + from_y.expand(size,-1)
 
+        grid = torch.empty(B,size,size,2)
         for i in range(B):
             grid_x, grid_y = torch.meshgrid(tempx[:,i], tempy[:,i])
             grid[i,:,:,0] = grid_x;
             grid[i,:,:,1] = grid_y; 
 
-        return F.grid_sample(x,grid,padding_mode='reflection')
+        return F.grid_sample(x,grid,padding_mode='reflection').squeeze()
 
     def denormalize(self, T, coords):
         """
