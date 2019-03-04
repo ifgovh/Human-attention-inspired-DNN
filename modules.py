@@ -84,48 +84,65 @@ class retina(object):
         - patch: a 4D Tensor of shape (B, size, size, C)
         """
         B, C, H, W = x.shape        
-
+        import pdb; pdb.set_trace()
         # denormalize coords of patch center
         coords = self.denormalize(H, l)
 
-        # compute top left corner of patch
-        patch_x = coords[:, 0] - (size // 2)
-        patch_y = coords[:, 1] - (size // 2)
+        # # compute top left corner of patch
+        # patch_x = coords[:, 0] - (size // 2)
+        # patch_y = coords[:, 1] - (size // 2)
 
-        # loop through mini-batch and extract
+        # # loop through mini-batch and extract
+        # patch = []
+        # for i in range(B):
+        #     im = x[i].unsqueeze(dim=0)
+        #     T = im.shape[-1]
+
+        #     # compute slice indices
+        #     from_x, to_x = patch_x[i], patch_x[i] + size
+        #     from_y, to_y = patch_y[i], patch_y[i] + size
+
+        #     # cast to ints
+        #     #from_x, to_x = from_x.data[0], to_x.data[0]
+        #     from_x, to_x = from_x.data.item(), to_x.data.item()
+        #     #from_y, to_y = from_y.data[0], to_y.data[0]
+        #     from_y, to_y = from_y.data.item(), to_y.data.item()
+
+        #     # pad tensor in case exceeds
+        #     if self.exceeds(from_x, to_x, from_y, to_y, T):
+        #         pad_dims = (
+        #             size//2+1, size//2+1,
+        #             size//2+1, size//2+1,
+        #             0, 0,
+        #             0, 0,
+        #         )
+        #         im = F.pad(im, pad_dims, "constant", 0)
+
+        #         # add correction factor
+        #         from_x += (size//2+1)
+        #         to_x += (size//2+1)
+        #         from_y += (size//2+1)
+        #         to_y += (size//2+1)
+
+        #     # and finally extract
+        #     patch.append(im[:, :, from_y:to_y, from_x:to_x])
+
+        # pad the image with enough 0s
+        x = nn.ConstantPad2d(size//2, 0.)(x)
+
+        # calculate coordinate for each batch samle (padding considered)
+        from_x, from_y = coords[:, 0], coords[:, 1]
+        to_x, to_y = from_x + size, from_y + size
+        # The above is the original implementation
+        # It only works if the input image is a square
+        # The following is the correct implementation
+        # from_y, from_x = coords[:, 0], coords[:, 1]
+        # to_y, to_x = from_y + size, from_x + size
+
+        # extract the patches
         patch = []
         for i in range(B):
-            im = x[i].unsqueeze(dim=0)
-            T = im.shape[-1]
-
-            # compute slice indices
-            from_x, to_x = patch_x[i], patch_x[i] + size
-            from_y, to_y = patch_y[i], patch_y[i] + size
-
-            # cast to ints
-            #from_x, to_x = from_x.data[0], to_x.data[0]
-            from_x, to_x = from_x.data.item(), to_x.data.item()
-            #from_y, to_y = from_y.data[0], to_y.data[0]
-            from_y, to_y = from_y.data.item(), to_y.data.item()
-
-            # pad tensor in case exceeds
-            if self.exceeds(from_x, to_x, from_y, to_y, T):
-                pad_dims = (
-                    size//2+1, size//2+1,
-                    size//2+1, size//2+1,
-                    0, 0,
-                    0, 0,
-                )
-                im = F.pad(im, pad_dims, "constant", 0)
-
-                # add correction factor
-                from_x += (size//2+1)
-                to_x += (size//2+1)
-                from_y += (size//2+1)
-                to_y += (size//2+1)
-
-            # and finally extract
-            patch.append(im[:, :, from_y:to_y, from_x:to_x])
+            patch.append(x[i, :, from_y[i]:to_y[i], from_x[i]:to_x[i]].unsqueeze(0))
 
         # concatenate into a single tensor
         patch = torch.cat(patch)
@@ -341,7 +358,7 @@ class location_network(nn.Module):
 
     def forward(self, h_t):
         # compute mean
-        mu = F.tanh(self.fc(h_t.detach()))
+        mu = torch.tanh(self.fc(h_t.detach()))
 
         # reparametrization trick
         noise = torch.zeros_like(mu)
@@ -349,7 +366,7 @@ class location_network(nn.Module):
         l_t = mu + noise
 
         # bound between [-1, 1]
-        l_t = F.tanh(l_t)
+        l_t = torch.tanh(l_t)
 
         return mu, l_t
 
