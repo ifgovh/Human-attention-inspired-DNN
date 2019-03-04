@@ -122,13 +122,15 @@ class Trainer(object):
         print('[*] Number of model parameters: {:,}'.format(
             sum([p.data.nelement() for p in self.model.parameters()])))
 
-        # # initialize optimizer and scheduler
+        # initialize optimizer and scheduler
         # self.optimizer = optim.SGD(
         #     self.model.parameters(), lr=self.lr, momentum=self.momentum,
         # )
         # self.scheduler = ReduceLROnPlateau(
         #     self.optimizer, 'min', patience=self.lr_patience
         # )
+        # self.optimizer = optim.Adadelta(
+        # 	self.model.parameters())
         self.optimizer = optim.Adam(
             self.model.parameters(), lr=3e-4,
         ) # change learning rate here, adaptive?
