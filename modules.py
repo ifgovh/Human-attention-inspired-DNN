@@ -85,69 +85,22 @@ class retina(object):
         """
         B, C, H, W = x.shape        
         import pdb; pdb.set_trace()
-        # denormalize coords of patch center
-        coords = self.denormalize(H, l)
-
-        # # compute top left corner of patch
-        # patch_x = coords[:, 0] - (size // 2)
-        # patch_y = coords[:, 1] - (size // 2)
-
-        # # loop through mini-batch and extract
-        # patch = []
-        # for i in range(B):
-        #     im = x[i].unsqueeze(dim=0)
-        #     T = im.shape[-1]
-
-        #     # compute slice indices
-        #     from_x, to_x = patch_x[i], patch_x[i] + size
-        #     from_y, to_y = patch_y[i], patch_y[i] + size
-
-        #     # cast to ints
-        #     #from_x, to_x = from_x.data[0], to_x.data[0]
-        #     from_x, to_x = from_x.data.item(), to_x.data.item()
-        #     #from_y, to_y = from_y.data[0], to_y.data[0]
-        #     from_y, to_y = from_y.data.item(), to_y.data.item()
-
-        #     # pad tensor in case exceeds
-        #     if self.exceeds(from_x, to_x, from_y, to_y, T):
-        #         pad_dims = (
-        #             size//2+1, size//2+1,
-        #             size//2+1, size//2+1,
-        #             0, 0,
-        #             0, 0,
-        #         )
-        #         im = F.pad(im, pad_dims, "constant", 0)
-
-        #         # add correction factor
-        #         from_x += (size//2+1)
-        #         to_x += (size//2+1)
-        #         from_y += (size//2+1)
-        #         to_y += (size//2+1)
-
-        #     # and finally extract
-        #     patch.append(im[:, :, from_y:to_y, from_x:to_x])
-
-        # pad the image with enough 0s
-        x = nn.ConstantPad2d(size//2, 0.)(x)
-
         # calculate coordinate for each batch samle (padding considered)
-        from_x, from_y = coords[:, 0], coords[:, 1]
-        to_x, to_y = from_x + size, from_y + size
-        # The above is the original implementation
-        # It only works if the input image is a square
-        # The following is the correct implementation
-        # from_y, from_x = coords[:, 0], coords[:, 1]
-        # to_y, to_x = from_y + size, from_x + size
+        from_x, from_y = l[:, 0], l[:, 1]
+        # normalize size
+        size_norm = size/H
 
-        # extract the patches
-        patch = []
+        # build fluid-flow grid
+        tempx = torch.arange(0,(size-1)*size_norm,size_norm).unsqueeze(1).expand(-1,B) + from_x.expand(size,-1)
+        tempy = torch.arange(0,(size-1)*size_norm,size_norm).unsqueeze(1).expand(-1,B) + from_y.expand(size,-1)
+        grid = torch.empty(B,size,size,2)
+
         for i in range(B):
-            patch.append(x[i, :, from_y[i]:to_y[i], from_x[i]:to_x[i]].unsqueeze(0))
+            grid_x, grid_y = torch.meshgrid(tempx[:,i], tempy[:,i])
+            grid[i,:,:,0] = grid_x;
+            grid[i,:,:,1] = grid_y; 
 
-        # concatenate into a single tensor
-        patch = torch.cat(patch)
-
-        return patch
+        return F.grid_sample(x,grid,padding_mode='reflection')
 
     def denormalize(self, T, coords):
         """
