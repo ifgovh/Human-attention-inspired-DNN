@@ -89,15 +89,10 @@ class retina(object):
         # normalize size
         size_norm = size/H
 
-        # build fluid-flow grid
-        tempx = torch.arange(0,size*size_norm,size_norm).unsqueeze(1).expand(-1,B) + from_x.expand(size,-1)
-        tempy = torch.arange(0,size*size_norm,size_norm).unsqueeze(1).expand(-1,B) + from_y.expand(size,-1)
-
-        grid = torch.empty(B,size,size,2)
-        for i in range(B):
-            grid_x, grid_y = torch.meshgrid(tempx[:,i], tempy[:,i])
-            grid[i,:,:,0] = grid_x;
-            grid[i,:,:,1] = grid_y; 
+        # build fluid-flow grid        
+        theta = torch.randn(B,2,3)
+        #theta(:,- from_x
+        grid = affine_grid(theta, torch.Size(B,C,size,size))
 
         return F.grid_sample(x,grid,padding_mode='reflection').squeeze()
 
