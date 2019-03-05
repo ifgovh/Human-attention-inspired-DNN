@@ -86,11 +86,11 @@ def get_train_valid_loader(data_dir,
         valdir = os.path.join(data_dir, 'valid_sample')
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                          std=[0.229, 0.224, 0.225])
-        
+        #(28,scale=(0.8,1.0)),
         train_dataset = datasets.ImageFolder(
             traindir,
             transforms.Compose([
-                transforms.RandomResizedCrop(224),
+                transforms.RandomResizedCrop(64,scale=(0.8,1.0)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 normalize,
@@ -112,8 +112,8 @@ def get_train_valid_loader(data_dir,
 
         valid_loader = torch.utils.data.DataLoader(
             datasets.ImageFolder(valdir, transforms.Compose([
-                transforms.Resize(256),
-                transforms.CenterCrop(224),
+                transforms.Resize(76),
+                transforms.CenterCrop(64),
                 transforms.ToTensor(),
                 normalize,
             ])),

@@ -227,6 +227,7 @@ class Trainer(object):
         tic = time.time()
         with tqdm(total=self.num_train) as pbar:
             for i, (x, y) in enumerate(self.train_loader):
+                #import pdb; pdb.set_trace()
                 if self.use_gpu:
                     x, y = x.cuda(), y.cuda()
                 x, y = Variable(x), Variable(y)

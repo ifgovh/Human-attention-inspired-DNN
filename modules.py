@@ -89,12 +89,19 @@ class retina(object):
         # normalize size
         size_norm = size/H
 
-        # build fluid-flow grid        
-        theta = torch.randn(B,2,3)
-        #theta(:,- from_x
-        grid = affine_grid(theta, torch.Size(B,C,size,size))
+        # build fluid-flow grid
+        theta = torch.zeros(B*2,3)
+        #import pdb; pdb.set_trace() 
+        theta[torch.arange(0,B*2,2),0] = 1;
+        theta[torch.arange(1,B*2,2),1] = 1;
+        theta[torch.arange(0,B*2,2),2] = -from_x;
+        theta[torch.arange(1,B*2,2),2] = -from_y;
+        theta = theta.reshape((B,2,3))
+              
 
-        return F.grid_sample(x,grid,padding_mode='reflection').squeeze()
+        grid = F.affine_grid(theta, torch.Size((B,C,size,size)))
+        #import pdb; pdb.set_trace()
+        return F.grid_sample(x,grid,padding_mode='zeros').squeeze() #padding_mode='reflection'
 
     def denormalize(self, T, coords):
         """
