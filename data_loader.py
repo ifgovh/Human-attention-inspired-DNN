@@ -119,7 +119,7 @@ def get_train_valid_loader(data_dir,
             ])),
             batch_size=batch_size, shuffle=False,
             num_workers=num_workers, pin_memory=True)    
-    elif dataset_name = 'CIFAR':
+    elif dataset_name == 'CIFAR':
         dataset = datasets.CIFAR10(
             data_dir, train=True, download=True, transform=trans
         )

@@ -6,6 +6,8 @@ data/train/
 data/val/
 data/train_sample/
 data/valid_sample/
+data/cifar-10-batches-py/
+*.tar.gz
 logs/
 ckpt/
 PBSout_GPU/
