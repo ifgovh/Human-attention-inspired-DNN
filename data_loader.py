@@ -86,7 +86,7 @@ def get_train_valid_loader(data_dir,
         valdir = os.path.join(data_dir, 'valid_sample')
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                          std=[0.229, 0.224, 0.225])
-        #(28,scale=(0.8,1.0)),
+        
         train_dataset = datasets.ImageFolder(
             traindir,
             transforms.Compose([
@@ -94,9 +94,9 @@ def get_train_valid_loader(data_dir,
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 normalize,
-            ]))
+            ]))    
         
-        # this sampler block has bug! You cannot shuffle it!
+        # this sampler block has bug! You cannot distribute it!
         if not shuffle:
             torch.distributed.init_process_group(backend='gloo',
                 init_method='tcp://224.66.41.62:23456',
@@ -118,7 +118,35 @@ def get_train_valid_loader(data_dir,
                 normalize,
             ])),
             batch_size=batch_size, shuffle=False,
-            num_workers=num_workers, pin_memory=True)        
+            num_workers=num_workers, pin_memory=True)    
+    elif dataset_name = 'CIFAR':
+        dataset = datasets.CIFAR10(
+            data_dir, train=True, download=True, transform=trans
+        )
+
+        num_train = len(dataset)
+        indices = list(range(num_train))
+        split = int(np.floor(valid_size * num_train))
+
+        if shuffle:
+            np.random.seed(random_seed)
+            np.random.shuffle(indices)
+
+        train_idx, valid_idx = indices[split:], indices[:split]
+
+        train_sampler = SubsetRandomSampler(train_idx)
+        valid_sampler = SubsetRandomSampler(valid_idx)
+
+        train_loader = torch.utils.data.DataLoader(
+            dataset, batch_size=batch_size, sampler=train_sampler,
+            num_workers=num_workers, pin_memory=pin_memory,
+        )
+
+        valid_loader = torch.utils.data.DataLoader(
+            dataset, batch_size=batch_size, sampler=valid_sampler,
+            num_workers=num_workers, pin_memory=pin_memory,
+        )
+
     else:
        raise ValueError("[!] Please input correct dataset_name.")
     
@@ -175,5 +203,5 @@ def get_test_loader(data_dir,
         dataset, batch_size=batch_size, shuffle=False,
         num_workers=num_workers, pin_memory=pin_memory,
     )
-
+    # To-do: add ImageNet or other dataset for testing
     return data_loader

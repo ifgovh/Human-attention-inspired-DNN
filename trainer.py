@@ -54,7 +54,7 @@ class Trainer(object):
         if config.is_train:
             self.train_loader = data_loader[0]
             self.valid_loader = data_loader[1]
-            if config.dataset_name == 'MNIST':
+            if config.dataset_name == 'MNIST' or config.dataset_name == 'CIFAR':
                 self.num_train = len(self.train_loader.sampler.indices)
                 self.num_valid = len(self.valid_loader.sampler.indices)
             elif config.dataset_name == 'ImageNet':
@@ -72,6 +72,9 @@ class Trainer(object):
         elif config.dataset_name == 'ImageNet':
             self.num_channels = 3
             self.num_classes = 1000
+        elif config.dataset_name == 'CIFAR':
+            self.num_channels = 3
+            self.num_classes = 10
 
 
         # training params
