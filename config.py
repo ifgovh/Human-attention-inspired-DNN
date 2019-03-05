@@ -98,7 +98,8 @@ misc_arg.add_argument('--print_freq', type=int, default=10,
                       help='How frequently to print training details')
 misc_arg.add_argument('--plot_freq', type=int, default=1,
                       help='How frequently to plot glimpses')
-
+misc_arg.add_argument('--PBSarray_ID', type=int, default=1,
+                      help='PBSarray_ID')
 
 def get_config():
     config, unparsed = parser.parse_known_args()

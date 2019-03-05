@@ -98,9 +98,10 @@ class Trainer(object):
         self.resume = config.resume
         self.print_freq = config.print_freq
         self.plot_freq = config.plot_freq
-        self.model_name = 'ram_{}_{}x{}_{}'.format(
+        self.model_name = 'ram_{}_{}x{}_{}_{}'.format(
             config.num_glimpses, config.patch_size,
-            config.patch_size, config.glimpse_scale
+            config.patch_size, config.glimpse_scale,
+            config.PBSarray_ID
         )
 
         self.plot_dir = './plots/' + self.model_name + '/'
@@ -134,13 +135,15 @@ class Trainer(object):
         # self.scheduler = ReduceLROnPlateau(
         #     self.optimizer, 'min', patience=self.lr_patience
         # )
-        # self.optimizer = optim.Adadelta(
+        # if config.PBSarray_ID == 1:
+        #     self.optimizer = optim.Adadelta(
         # 	self.model.parameters())
+        # elif config.PBSarray_ID == 2:
         self.optimizer = optim.Adam(
-            self.model.parameters(), lr=3e-4,
-        )
-        # self.optimizer = adabound.AdaBound(
-        #     self.model.parameters(), lr=3e-4, final_lr=0.1)
+            self.model.parameters(), lr=3e-4)
+        # elif config.PBSarray_ID == 3:
+        #     self.optimizer = adabound.AdaBound(
+        #         self.model.parameters(), lr=3e-4, final_lr=0.1)
 
     def reset(self):
         """
