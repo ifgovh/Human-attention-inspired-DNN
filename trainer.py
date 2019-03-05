@@ -14,7 +14,9 @@ from tqdm import tqdm
 from utils import AverageMeter
 from model import RecurrentAttention
 from tensorboard_logger import configure, log_value
+
 import scipy.io as sio
+import adabound
 
 class Trainer(object):
     """
@@ -136,7 +138,9 @@ class Trainer(object):
         # 	self.model.parameters())
         self.optimizer = optim.Adam(
             self.model.parameters(), lr=3e-4,
-        ) # change learning rate here, adaptive?
+        )
+        # self.optimizer = adabound.AdaBound(
+        #     self.model.parameters(), lr=3e-4, final_lr=0.1)
 
     def reset(self):
         """
