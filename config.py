@@ -74,6 +74,12 @@ train_arg.add_argument('--lr_patience', type=int, default=10,
                        help='Number of epochs to wait before reducing lr')
 train_arg.add_argument('--train_patience', type=int, default=50,
                        help='Number of epochs to wait before stopping train')
+train_arg.add_argument('--optimizer', type=str, default='Adam',
+                       help='The name of optimizer')
+train_arg.add_argument('--loss_fun_action', type=str, default='nll',
+                       help='The name of loss fucntion of action nn')
+train_arg.add_argument('--loss_fun_baseline', type=str, default='mse',
+                       help='The name of loss fucntion of baseline nn')
 
 
 # other params

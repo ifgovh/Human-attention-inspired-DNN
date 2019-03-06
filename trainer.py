@@ -84,6 +84,8 @@ class Trainer(object):
         self.start_epoch = 0
         self.momentum = config.momentum
         self.lr = config.init_lr
+        self.loss_fun_baseline = config.loss_fun_baseline
+        self.loss_fun_action = config.loss_fun_action
 
         # misc params
         self.use_gpu = config.use_gpu
@@ -129,21 +131,21 @@ class Trainer(object):
             sum([p.data.nelement() for p in self.model.parameters()])))
 
         # initialize optimizer and scheduler
-        # self.optimizer = optim.SGD(
-        #     self.model.parameters(), lr=self.lr, momentum=self.momentum,
-        # )
-        # self.scheduler = ReduceLROnPlateau(
-        #     self.optimizer, 'min', patience=self.lr_patience
-        # )
-        # if config.PBSarray_ID == 1:
-        #     self.optimizer = optim.Adadelta(
-        # 	self.model.parameters())
-        # elif config.PBSarray_ID == 2:
-        self.optimizer = optim.Adam(
-            self.model.parameters(), lr=3e-4)
-        # elif config.PBSarray_ID == 3:
-        #     self.optimizer = adabound.AdaBound(
-        #         self.model.parameters(), lr=3e-4, final_lr=0.1)
+        if config.optimizer == 'SGD':
+            self.optimizer = optim.SGD(
+                self.model.parameters(), lr=self.lr, momentum=self.momentum)
+        elif config.optimizer == 'ReduceLROnPlateau':
+            self.scheduler = ReduceLROnPlateau(
+                self.optimizer, 'min', patience=self.lr_patience)
+        elif config.optimizer == 'Adadelta':
+            self.optimizer = optim.Adadelta(
+        	   self.model.parameters())
+        elif config.optimizer == 'Adam':
+            self.optimizer = optim.Adam(
+                self.model.parameters(), lr=3e-4)
+        elif config.optimizer == 'AdaBound':
+            self.optimizer = adabound.AdaBound(
+                self.model.parameters(), lr=3e-4, final_lr=0.1)
 
     def reset(self):
         """
@@ -285,8 +287,9 @@ class Trainer(object):
                 R = R.unsqueeze(1).repeat(1, self.num_glimpses)
 
                 # compute losses for differentiable modules
-                loss_action = F.nll_loss(log_probas, y)
-                loss_baseline = F.mse_loss(baselines, R)
+                loss_action, loss_baseline = self.choose_loss_fun(log_probas, y, baselines, R)
+                # loss_action = F.nll_loss(log_probas, y)
+                # loss_baseline = F.mse_loss(baselines, R)
 
                 # compute reinforce loss
                 # summed over timesteps and averaged across batch
@@ -419,8 +422,9 @@ class Trainer(object):
             R = R.unsqueeze(1).repeat(1, self.num_glimpses)
 
             # compute losses for differentiable modules
-            loss_action = F.nll_loss(log_probas, y)
-            loss_baseline = F.mse_loss(baselines, R)
+            loss_action, loss_baseline = self.choose_loss_fun(log_probas, y, baselines, R)
+            # loss_action = F.nll_loss(log_probas, y)
+            # loss_baseline = F.mse_loss(baselines, R)
 
             # compute reinforce loss
             adjusted_reward = R - baselines.detach()
@@ -445,6 +449,24 @@ class Trainer(object):
                 log_value('valid_acc', accs.avg, iteration)
 
         return losses.avg, accs.avg
+
+    def choose_loss_fun(self, log_probas, y, baselines, R):
+        """
+        use disctionary to save function handle
+        replacement of swith-case
+
+        be careful of the argument data type and shape!!!
+        """
+        loss_fun_pool = {
+            'mse': F.mse_loss,
+            'l1': F.l1_loss,
+            'nll': F.nll_loss,
+            'smooth_l1': F.smooth_l1_loss,
+            'kl_div': kl_div,
+            'cross_entropy': cross_entropy
+        }
+
+        return loss_fun_pool[self.loss_fun_action](log_probas, y), loss_fun_pool[self.loss_fun_baseline](baselines, R)
 
     def test(self):
         """

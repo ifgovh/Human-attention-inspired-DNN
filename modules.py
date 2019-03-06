@@ -91,7 +91,7 @@ class retina(object):
 
         # build fluid-flow grid
         theta = torch.zeros(B*2,3)
-        #import pdb; pdb.set_trace() 
+        # see youdao cloud note about affine transform for this algorithm
         theta[torch.arange(0,B*2,2),0] = 1;
         theta[torch.arange(1,B*2,2),1] = 1;
         theta[torch.arange(0,B*2,2),2] = -from_x;

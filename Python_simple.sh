@@ -12,5 +12,8 @@
 cd ~
 source tf/bin/activate
 cd "$PBS_O_WORKDIR"
-python3 main.py --loc_hidden=192 --hidden_size=320 --dataset_name='CIFAR' --patch_size=10 --epochs=2000 --train_patience=1000 --PBSarray_ID=${PBS_ARRAY_INDEX}
+params = 'sed "${PBSarray_ID}q;d" job_params.txt'
+param_array = ($params)
+python3 main.py --loc_hidden=192 --hidden_size=320 --loss_fun_action=${param_array[0]} --loss_fun_baseline=${param_array[0]} --dataset_name='CIFAR' --patch_size=10 --epochs=2000 --train_patience=1000 --PBSarray_ID=${PBS_ARRAY_INDEX}
 
+#--batch_szie= --loc_hidden=192 --hidden_size=320 --glimpse_hidden= --num_glimpse= --glimpse_scale= --loss_fun_action= --loss_fun_baseline= 
