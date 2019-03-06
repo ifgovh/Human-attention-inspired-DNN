@@ -462,8 +462,8 @@ class Trainer(object):
             'l1': F.l1_loss,
             'nll': F.nll_loss,
             'smooth_l1': F.smooth_l1_loss,
-            'kl_div': kl_div,
-            'cross_entropy': cross_entropy
+            'kl_div': F.kl_div,
+            'cross_entropy': F.cross_entropy
         }
 
         return loss_fun_pool[self.loss_fun_action](log_probas, y), loss_fun_pool[self.loss_fun_baseline](baselines, R)
