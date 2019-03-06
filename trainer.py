@@ -122,7 +122,7 @@ class Trainer(object):
         self.model = RecurrentAttention(
             self.patch_size, self.num_patches, self.glimpse_scale,
             self.num_channels, self.loc_hidden, self.glimpse_hidden,
-            self.std, self.hidden_size, self.num_classes,
+            self.std, self.hidden_size, self.num_classes, config
         )
         if self.use_gpu:
             self.model.cuda()

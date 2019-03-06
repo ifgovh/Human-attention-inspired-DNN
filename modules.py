@@ -32,10 +32,11 @@ class retina(object):
     - phi: a 5D tensor of shape (B, k, g, g, C). The
       foveated glimpse of the image.
     """
-    def __init__(self, g, k, s):
+    def __init__(self, g, k, s, config):
         self.g = g
         self.k = k
         self.s = s
+        self.use_gpu = config.use_gpu
 
     def foveate(self, x, l):
         """
@@ -88,9 +89,13 @@ class retina(object):
         from_x, from_y = l[:, 0], l[:, 1]
         # normalize size
         size_norm = size/H
-
+        # import pdb; pdb.set_trace()
         # build fluid-flow grid
-        theta = torch.zeros(B*2,3)
+        if self.use_gpu:
+            theta = torch.cuda.FloatTensor(B*2,3).fill_(0)
+        else:
+            theta = torch.zeros(B*2,3)
+
         # see youdao cloud note about affine transform for this algorithm
         theta[torch.arange(0,B*2,2),0] = 1;
         theta[torch.arange(1,B*2,2),1] = 1;
@@ -100,7 +105,7 @@ class retina(object):
               
 
         grid = F.affine_grid(theta, torch.Size((B,C,size,size)))
-        #import pdb; pdb.set_trace()
+        
         return F.grid_sample(x,grid,padding_mode='zeros').squeeze() #padding_mode='reflection'
 
     def denormalize(self, T, coords):
@@ -160,9 +165,9 @@ class glimpse_network(nn.Module):
       representation returned by the glimpse network for the
       current timestep `t`.
     """
-    def __init__(self, h_g, h_l, g, k, s, c):
+    def __init__(self, h_g, h_l, g, k, s, c, config):
         super(glimpse_network, self).__init__()
-        self.retina = retina(g, k, s)
+        self.retina = retina(g, k, s, config)
 
         # glimpse layer
         D_in = k*g*g*c
