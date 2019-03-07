@@ -93,6 +93,7 @@ class Trainer(object):
         self.ckpt_dir = config.ckpt_dir
         self.logs_dir = config.logs_dir
         self.best_valid_acc = 0.
+        self.bset_train_acc = 0.
         self.counter = 0
         self.lr_patience = config.lr_patience
         self.train_patience = config.train_patience
@@ -199,28 +200,35 @@ class Trainer(object):
             # # reduce lr if validation loss plateaus
             # self.scheduler.step(valid_loss)
 
-            is_best = valid_acc > self.best_valid_acc
+            is_best_valid = valid_acc > self.best_valid_acc
+            is_best_train = train_acc > self.best_train_acc
             msg1 = "train loss: {:.3f} - train acc: {:.3f} "
             msg2 = "- val loss: {:.3f} - val acc: {:.3f}"
-            if is_best:
+
+            if is_best_train:                
+                msg1 += " [*]"
+
+            if is_best_valid:
                 self.counter = 0
                 msg2 += " [*]"
             msg = msg1 + msg2
             print(msg.format(train_loss, train_acc, valid_loss, valid_acc))
 
             # check for improvement
-            if not is_best:
+            if not is_best_valid:
                 self.counter += 1
             if self.counter > self.train_patience:
                 print("[!] No improvement in a while, stopping training.")
                 return
             self.best_valid_acc = max(valid_acc, self.best_valid_acc)
+            self.best_valid_acc = max(train_acc, self.best_train_acc)
             self.save_checkpoint(
                 {'epoch': epoch + 1,
                  'model_state': self.model.state_dict(),
                  'optim_state': self.optimizer.state_dict(),
                  'best_valid_acc': self.best_valid_acc,
-                 }, is_best
+                 'best_train_acc': self.best_train_acc,
+                 }, is_best_valid
             )
 
     def train_one_epoch(self, epoch):
