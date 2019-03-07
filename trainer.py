@@ -93,7 +93,7 @@ class Trainer(object):
         self.ckpt_dir = config.ckpt_dir
         self.logs_dir = config.logs_dir
         self.best_valid_acc = 0.
-        self.bset_train_acc = 0.
+        self.best_train_acc = 0.
         self.counter = 0
         self.lr_patience = config.lr_patience
         self.train_patience = config.train_patience
@@ -221,7 +221,7 @@ class Trainer(object):
                 print("[!] No improvement in a while, stopping training.")
                 return
             self.best_valid_acc = max(valid_acc, self.best_valid_acc)
-            self.best_valid_acc = max(train_acc, self.best_train_acc)
+            self.best_train_acc = max(train_acc, self.best_train_acc)
             self.save_checkpoint(
                 {'epoch': epoch + 1,
                  'model_state': self.model.state_dict(),
