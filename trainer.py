@@ -103,13 +103,13 @@ class Trainer(object):
         self.print_freq = config.print_freq
         self.plot_freq = config.plot_freq
         if self.use_gpu:
-            self.model_name = 'ram_{}_{}x{}_{}_{}'.format(
+            self.model_name = 'ram_gpu_{}_{}x{}_{}_{}'.format(
                 config.num_glimpses, config.patch_size,
                 config.patch_size, config.glimpse_scale,
                 config.PBSarray_ID
             )
         else:
-            self.model_name = 'ram_gpu_{}_{}x{}_{}_{}'.format(
+            self.model_name = 'ram_{}_{}x{}_{}_{}'.format(
                 config.num_glimpses, config.patch_size,
                 config.patch_size, config.glimpse_scale,
                 config.PBSarray_ID
