@@ -131,14 +131,16 @@ def prepare_dirs(config):
 def save_config(config):
     if config.use_gpu:
 	    model_name = 'ram_gpu_{}_{}x{}_{}_{}'.format(
-	        config.num_glimpses, config.patch_size,
-	        config.patch_size, config.glimpse_scale, config.PBSarray_ID
+	        config.PBSarray_ID, config.num_glimpses, 
+            config.patch_size,
+	        config.patch_size, config.glimpse_scale
 	    )
     else:
 	    model_name = 'ram_{}_{}x{}_{}_{}'.format(
-                config.num_glimpses, config.patch_size,
-                config.patch_size, config.glimpse_scale, config.PBSarray_ID
-            )
+            config.PBSarray_ID, config.num_glimpses, 
+            config.patch_size,
+            config.patch_size, config.glimpse_scale, 
+        )
     filename = model_name + '_params.json'
     param_path = os.path.join(config.ckpt_dir, filename)
 

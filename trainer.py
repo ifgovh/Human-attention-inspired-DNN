@@ -104,15 +104,15 @@ class Trainer(object):
         self.plot_freq = config.plot_freq
         if self.use_gpu:
             self.model_name = 'ram_gpu_{}_{}x{}_{}_{}'.format(
-                config.num_glimpses, config.patch_size,
-                config.patch_size, config.glimpse_scale,
-                config.PBSarray_ID
+                config.PBSarray_ID, config.num_glimpses, 
+                config.patch_size,
+                config.patch_size, config.glimpse_scale                
             )
         else:
             self.model_name = 'ram_{}_{}x{}_{}_{}'.format(
-                config.num_glimpses, config.patch_size,
-                config.patch_size, config.glimpse_scale,
-                config.PBSarray_ID
+                config.PBSarray_ID, config.num_glimpses, 
+                config.patch_size,
+                config.patch_size, config.glimpse_scale                
             )
 
         self.plot_dir = './plots/' + self.model_name + '/'
