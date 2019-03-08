@@ -86,6 +86,7 @@ class Trainer(object):
         self.lr = config.init_lr
         self.loss_fun_baseline = config.loss_fun_baseline
         self.loss_fun_action = config.loss_fun_action
+        self.weight_decay = config.weight_decay
 
         # misc params
         self.use_gpu = config.use_gpu
@@ -101,11 +102,18 @@ class Trainer(object):
         self.resume = config.resume
         self.print_freq = config.print_freq
         self.plot_freq = config.plot_freq
-        self.model_name = 'ram_{}_{}x{}_{}_{}'.format(
-            config.num_glimpses, config.patch_size,
-            config.patch_size, config.glimpse_scale,
-            config.PBSarray_ID
-        )
+        if self.use_gpu:
+            self.model_name = 'ram_{}_{}x{}_{}_{}'.format(
+                config.num_glimpses, config.patch_size,
+                config.patch_size, config.glimpse_scale,
+                config.PBSarray_ID
+            )
+        else:
+            self.model_name = 'ram_gpu_{}_{}x{}_{}_{}'.format(
+                config.num_glimpses, config.patch_size,
+                config.patch_size, config.glimpse_scale,
+                config.PBSarray_ID
+            )
 
         self.plot_dir = './plots/' + self.model_name + '/'
         if not os.path.exists(self.plot_dir):
@@ -131,22 +139,33 @@ class Trainer(object):
         print('[*] Number of model parameters: {:,}'.format(
             sum([p.data.nelement() for p in self.model.parameters()])))
 
-        # initialize optimizer and scheduler
+        # initialize optimizer and scheduler        
         if config.optimizer == 'SGD':
             self.optimizer = optim.SGD(
-                self.model.parameters(), lr=self.lr, momentum=self.momentum)
+                self.model.parameters(), 
+                lr=self.lr, 
+                momentum=self.momentum,
+                weight_decay=self.weight_decay)
         elif config.optimizer == 'ReduceLROnPlateau':
             self.scheduler = ReduceLROnPlateau(
-                self.optimizer, 'min', patience=self.lr_patience)
+                self.optimizer, 'min', 
+                patience=self.lr_patience,
+                weight_decay=self.weight_decay)
         elif config.optimizer == 'Adadelta':
             self.optimizer = optim.Adadelta(
-        	   self.model.parameters())
+        	   self.model.parameters(),
+               weight_decay=self.weight_decay)
         elif config.optimizer == 'Adam':
             self.optimizer = optim.Adam(
-                self.model.parameters(), lr=3e-4)
+                self.model.parameters(), 
+                lr=3e-4,
+                weight_decay=self.weight_decay)
         elif config.optimizer == 'AdaBound':
             self.optimizer = adabound.AdaBound(
-                self.model.parameters(), lr=3e-4, final_lr=0.1)
+                self.model.parameters(), 
+                lr=3e-4,
+                final_lr=0.1,
+                weight_decay=self.weight_decay)
 
     def reset(self):
         """

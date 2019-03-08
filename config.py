@@ -80,6 +80,8 @@ train_arg.add_argument('--loss_fun_action', type=str, default='nll',
                        help='The name of loss fucntion of action nn')
 train_arg.add_argument('--loss_fun_baseline', type=str, default='mse',
                        help='The name of loss fucntion of baseline nn')
+train_arg.add_argument('--weight_decay', type=float, default='0',
+                       help='weight decay (L2 penalty)')
 
 
 # other params
