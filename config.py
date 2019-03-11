@@ -82,7 +82,10 @@ train_arg.add_argument('--loss_fun_baseline', type=str, default='mse',
                        help='The name of loss fucntion of baseline nn')
 train_arg.add_argument('--weight_decay', type=float, default='0',
                        help='weight decay (L2 penalty)')
-
+train_arg.add_argument('--dropout', type=float, default=0,
+                       help='Probability of an element to be zeroed')
+train_arg.add_argument('--batchnorm', type=str2bool, default=False,
+                       help='Whether to add batchnorm layer')
 
 # other params
 misc_arg = add_argument_group('Misc.')

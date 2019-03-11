@@ -1,13 +1,14 @@
 from nevergrad import instrumentation as inst
 import torch
-
+import numpy as np
 def find_super_params(patch_size=8, glimpse_scale=2, num_patches=1, loc_hidden=256,
 	glimpse_hidden=128, num_glimpses=6, hidden_size=384, std=0.17, M=10, valid_size=0.1,
-	batch_size=32, weight_decay=0, PBSarray_ID)
+	batch_size=256, weight_decay=0, dropout=0, batchnorm=True, PBSarray_ID)
 
 	# glimpse network params
 	config.patch_size = patch_size;
 	config.glimpse_scale = glimpse_scale;
+	# # of downscaled patches per glimpse
 	config.num_patches = num_patches;
 	config.loc_hidden = loc_hidden;
 	config.glimpse_hidden = glimpse_hidden;
@@ -45,6 +46,8 @@ def find_super_params(patch_size=8, glimpse_scale=2, num_patches=1, loc_hidden=2
 	config.loss_fun_baseline = 'mse';
 	# weight decay (L2 penalty)
 	config.weight_decay = weight_decay;
+	config.dropout = dropout;
+	config.batchnorm = batchnorm;
 
 	# other params
 	config.use_gpu = True;
@@ -80,9 +83,35 @@ def find_super_params(patch_size=8, glimpse_scale=2, num_patches=1, loc_hidden=2
 
 # Instrumentation
 # argument transformation
-arg1 = inst.var.OrderedDiscrete(["a", "b"])  # 1st arg. = positional discrete argument
-arg2 = inst.var.SoftmaxCategorical(["a", "c", "e"])  # 2nd arg. = positional discrete argument
-value = inst.var.Gaussian(mean=1, std=2)  # the 4th arg. is a keyword argument with Gaussian prior
+def find_super_params(patch_size=8, glimpse_scale=2, num_patches=1, loc_hidden=256,
+	glimpse_hidden=128, num_glimpses=6, hidden_size=384, std=0.17, M=10, valid_size=0.1,
+	batch_size=256, weight_decay=0, PBSarray_ID)
+"""
+When optimizing hyperparameters as e.g. in machine learning. If you don't know what variables (see instrumentation) to use:
+
+use SoftmaxCategorical for discrete variables
+use TwoPointsDE with num_workers equal to the number of workers available to you. See the machine learning example for more.
+Or if you want something more aimed at robustly outperforming random search in highly parallel settings (one-shot):
+
+use OrderedDiscrete for discrete variables, taking care that the default value is in the middle.
+Use ScrHammersleySearchPlusMiddlePoint (PlusMiddlePoint only if you have continuous parameters or good default values for discrete parameters).
+"""
+# dicrete
+patch_size = inst.var.SoftmaxCategorical(np.arange(5,20)) 
+num_patches = inst.var.SoftmaxCategorical(np.arange(1,5)) 
+num_glimpses = inst.var.SoftmaxCategorical(np.arange(5,15))
+batchnorm = inst.var.SoftmaxCategorical(["True", "False"])
+arg2 = inst.var.SoftmaxCategorical(["a", "c", "e"]) 
+arg2 = inst.var.SoftmaxCategorical(["a", "c", "e"]) 
+arg2 = inst.var.SoftmaxCategorical(["a", "c", "e"]) 
+arg2 = inst.var.SoftmaxCategorical(["a", "c", "e"]) 
+arg2 = inst.var.SoftmaxCategorical(["a", "c", "e"])  
+
+# continuous
+glimpse_scale = inst.var.Gaussian(mean=2, std=2)  
+weight_decay = inst.var.Gaussian(mean=2, std=2)
+dropout = inst.var.Gaussian(mean=0.5, std=2)
+
 
 # create the instrumented function
 instrum = inst.Instrumentation(arg1, arg2, "blublu", value=value)

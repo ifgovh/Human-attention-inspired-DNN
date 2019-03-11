@@ -179,6 +179,11 @@ class glimpse_network(nn.Module):
         self.fc3 = nn.Linear(h_g, h_g+h_l)
         self.fc4 = nn.Linear(h_l, h_g+h_l)
 
+        # dropout layer
+        self.dropout = nn.Droput(config.dropout_glimpse)
+        # batchnorm layer
+        self.batchnorm_glimpse = nn.BatchNorm2d(3)
+
     def forward(self, x, l_t_prev):
         # generate glimpse phi from image x
         phi = self.retina.foveate(x, l_t_prev)
@@ -189,13 +194,13 @@ class glimpse_network(nn.Module):
         # feed phi and l to respective fc layers        
         phi_out = F.relu(self.fc1(phi))
         l_out = F.relu(self.fc2(l_t_prev))
-
+        import pdb; pdb.set_trace
         what = self.fc3(phi_out)
         where = self.fc4(l_out)
 
         # feed to fc layer
         g_t = F.relu(what + where)
-
+        import pdb; pdb.set_trace
         return g_t
 
 
@@ -243,6 +248,7 @@ class core_network(nn.Module):
         h1 = self.i2h(g_t)
         h2 = self.h2h(h_t_prev)
         h_t = F.relu(h1 + h2)
+        import pdb; pdb.set_trace
         return h_t
 
 
@@ -318,7 +324,7 @@ class location_network(nn.Module):
     def forward(self, h_t):
         # compute mean
         mu = torch.tanh(self.fc(h_t.detach()))
-
+        import pdb; pdb.set_trace
         # reparametrization trick
         noise = torch.zeros_like(mu)
         noise.data.normal_(std=self.std)
@@ -326,7 +332,7 @@ class location_network(nn.Module):
 
         # bound between [-1, 1]
         l_t = torch.tanh(l_t)
-
+        import pdb; pdb.set_trace
         return mu, l_t
 
 
@@ -353,4 +359,5 @@ class baseline_network(nn.Module):
 
     def forward(self, h_t):
         b_t = F.relu(self.fc(h_t.detach()))
+        import pdb; pdb.set_trace
         return b_t
