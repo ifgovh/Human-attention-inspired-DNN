@@ -89,7 +89,7 @@ class retina(object):
         from_x, from_y = l[:, 0], l[:, 1]
         # normalize size
         size_norm = size/H
-        # import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()()
         # build fluid-flow grid
         if self.use_gpu:
             theta = torch.cuda.FloatTensor(B*2,3).fill_(0)
@@ -180,7 +180,7 @@ class glimpse_network(nn.Module):
         self.fc4 = nn.Linear(h_l, h_g+h_l)
 
         # dropout layer
-        self.dropout = nn.Droput(config.dropout_glimpse)
+        self.dropout = nn.Dropout(config.dropout_glimpse)
         # batchnorm layer
         self.batchnorm_glimpse = nn.BatchNorm2d(3)
 
@@ -194,13 +194,13 @@ class glimpse_network(nn.Module):
         # feed phi and l to respective fc layers        
         phi_out = F.relu(self.fc1(phi))
         l_out = F.relu(self.fc2(l_t_prev))
-        import pdb; pdb.set_trace
+        import pdb; pdb.set_trace()
         what = self.fc3(phi_out)
         where = self.fc4(l_out)
 
         # feed to fc layer
         g_t = F.relu(what + where)
-        import pdb; pdb.set_trace
+        import pdb; pdb.set_trace()
         return g_t
 
 
@@ -242,13 +242,13 @@ class core_network(nn.Module):
 
         self.i2h = nn.Linear(input_size, hidden_size)
         self.h2h = nn.Linear(hidden_size, hidden_size)
-        #import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()()
     def forward(self, g_t, h_t_prev):
-        #import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()()
         h1 = self.i2h(g_t)
         h2 = self.h2h(h_t_prev)
         h_t = F.relu(h1 + h2)
-        import pdb; pdb.set_trace
+        import pdb; pdb.set_trace()
         return h_t
 
 
@@ -324,7 +324,7 @@ class location_network(nn.Module):
     def forward(self, h_t):
         # compute mean
         mu = torch.tanh(self.fc(h_t.detach()))
-        import pdb; pdb.set_trace
+        import pdb; pdb.set_trace()
         # reparametrization trick
         noise = torch.zeros_like(mu)
         noise.data.normal_(std=self.std)
@@ -332,7 +332,7 @@ class location_network(nn.Module):
 
         # bound between [-1, 1]
         l_t = torch.tanh(l_t)
-        import pdb; pdb.set_trace
+        import pdb; pdb.set_trace()
         return mu, l_t
 
 
@@ -359,5 +359,5 @@ class baseline_network(nn.Module):
 
     def forward(self, h_t):
         b_t = F.relu(self.fc(h_t.detach()))
-        import pdb; pdb.set_trace
+        import pdb; pdb.set_trace()
         return b_t
