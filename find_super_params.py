@@ -1,9 +1,13 @@
 from nevergrad import instrumentation as inst
 import torch
 import numpy as np
+from nevergrad.optimization import optimizerlib
+
 def find_super_params(patch_size=8, glimpse_scale=2, num_patches=1, loc_hidden=256,
-	glimpse_hidden=128, num_glimpses=6, hidden_size=384, std=0.17, M=10, valid_size=0.1,
-	batch_size=256, weight_decay=0, dropout=0, batchnorm=True, PBSarray_ID)
+	glimpse_hidden=128, num_glimpses=6, std=0.17, M=10, valid_size=0.1,
+	batch_size=256, weight_decay=0, dropout_phi=0, batchnorm_phi=True, 
+	dropout_l=0, batchnorm_l=True, dropout_g=0, batchnorm_g=True,
+	dropout_h=0, batchnorm_h=True)
 
 	# glimpse network params
 	config.patch_size = patch_size;
@@ -15,7 +19,7 @@ def find_super_params(patch_size=8, glimpse_scale=2, num_patches=1, loc_hidden=2
 
 	# core network params
 	config.num_glimpses = num_glimpses;
-	config.hidden_size = hidden_size;
+	config.hidden_size = loc_hidden + glimpse_hidden;
 
 	# reinforce params
 	# gaussian policy standard deviation
@@ -49,6 +53,18 @@ def find_super_params(patch_size=8, glimpse_scale=2, num_patches=1, loc_hidden=2
 	config.dropout = dropout;
 	config.batchnorm = batchnorm;
 
+	# dropout
+	config.dropout_phi = dropout_phi
+	config.dropout_l = dropout_l
+	config.dropout_g = dropout_g
+	config.dropout_h = dropout_h
+
+	# batch normalization
+	config. = batchnorm_flag_phi
+	config. = batchnorm_flag_l
+	config. = batchnorm_flag_g
+	config. = batchnorm_flag_h
+	
 	# other params
 	config.use_gpu = True;
 	config.best = True;
@@ -60,33 +76,69 @@ def find_super_params(patch_size=8, glimpse_scale=2, num_patches=1, loc_hidden=2
 	config.resume = False;
 	config.print_freq = 10;
 	config.plot_freq = 1;
-	config.PBSarray_ID = PBSarray_ID;
+	config.PBSarray_ID = 0;
 
 	main(config)
 
 	# read best model
-	    if config.use_gpu:
-		    model_name = 'ram_gpu_{}_{}x{}_{}_{}'.format(
-		        config.PBSarray_ID, config.num_glimpses, 
-	            config.patch_size,
-		        config.patch_size, config.glimpse_scale
-		    )
-	    else:
-		    model_name = 'ram_{}_{}x{}_{}_{}'.format(
-	            config.PBSarray_ID, config.num_glimpses, 
-	            config.patch_size,
-	            config.patch_size, config.glimpse_scale, 
-	        )
+    if config.use_gpu:
+	    model_name = 'ram_gpu_{0}_{1}_{2}x{3}_{4:1.2f}_{5}_{6}_{7}_{8}_{9}_{10}_{11:1.5f}_{12:1.2f}_{13:1.2f}_{14:1.2f}'.format(
+	        config.PBSarray_ID, config.num_glimpses, 
+            config.patch_size, config.patch_size,
+            config.glimpse_scale, config.num_patches, 
+            config.batchnorm_flag_phi, config.batchnorm_flag_l,
+            config.batchnorm_flag_g, config.batchnorm_flag_h,
+            config.weight_decay, config.dropout_phi,
+            config.dropout_l, config.dropout_g,
+            config.dropout_h
+	    )
+    else:
+	    model_name = 'ram_{0}_{1}_{2}x{3}_{4:1.2f}_{5}_{6}_{7}_{8}_{9}_{10}_{11:1.5f}_{12:1.2f}_{13:1.2f}_{14:1.2f}'.format(
+	        config.PBSarray_ID, config.num_glimpses, 
+            config.patch_size, config.patch_size,
+            config.glimpse_scale, config.num_patches, 
+            config.batchnorm_flag_phi, config.batchnorm_flag_l,
+            config.batchnorm_flag_g, config.batchnorm_flag_h,
+            config.weight_decay, config.dropout_phi,
+            config.dropout_l, config.dropout_g,
+            config.dropout_h
+	    )
 	best_model_file = torch.load(model_name + '_model_best.pth.tar')
 	return 100 - best_model_file['best_valid_acc']
 
 
+patch_size = inst.var.SoftmaxCategorical(np.arange(5,20)) 
+num_patches = inst.var.SoftmaxCategorical(np.arange(1,5)) 
+num_glimpses = inst.var.SoftmaxCategorical(np.arange(5,15))
+# glimpse_hidden = inst.var.SoftmaxCategorical(np.arange(128,5)) 
+# loc_hidden = inst.var.SoftmaxCategorical(np.arange(192,15))
+
+batchnorm_phi = inst.var.SoftmaxCategorical(["True", "False"])
+batchnorm_l = inst.var.SoftmaxCategorical(["True", "False"])
+batchnorm_g = inst.var.SoftmaxCategorical(["True", "False"])
+batchnorm_h = inst.var.SoftmaxCategorical(["True", "False"])
+ 
+
+# continuous
+glimpse_scale = inst.var.Gaussian(mean=2, std=2)  
+weight_decay = inst.var.Gaussian(mean=0.001, std=0.001)
+dropout_phi = inst.var.Gaussian(mean=0.5, std=2)
+dropout_l = inst.var.Gaussian(mean=0.5, std=2)
+dropout_g = inst.var.Gaussian(mean=0.5, std=2)
+dropout_h = inst.var.Gaussian(mean=0.5, std=2)
+
+
+
+
 # Instrumentation
 # argument transformation
-def find_super_params(patch_size=8, glimpse_scale=2, num_patches=1, loc_hidden=256,
-	glimpse_hidden=128, num_glimpses=6, hidden_size=384, std=0.17, M=10, valid_size=0.1,
-	batch_size=256, weight_decay=0, PBSarray_ID)
 """
+def find_super_params(patch_size=8, glimpse_scale=2, num_patches=1, loc_hidden=256,
+	glimpse_hidden=128, num_glimpses=6, std=0.17, M=10, valid_size=0.1,
+	batch_size=256, weight_decay=0, dropout_phi=0, batchnorm_phi=True, 
+	dropout_l=0, batchnorm_l=True, dropout_g=0, batchnorm_g=True,
+	dropout_h=0, batchnorm_h=True)
+
 When optimizing hyperparameters as e.g. in machine learning. If you don't know what variables (see instrumentation) to use:
 
 use SoftmaxCategorical for discrete variables
@@ -100,33 +152,40 @@ Use ScrHammersleySearchPlusMiddlePoint (PlusMiddlePoint only if you have continu
 patch_size = inst.var.SoftmaxCategorical(np.arange(5,20)) 
 num_patches = inst.var.SoftmaxCategorical(np.arange(1,5)) 
 num_glimpses = inst.var.SoftmaxCategorical(np.arange(5,15))
-batchnorm = inst.var.SoftmaxCategorical(["True", "False"])
-arg2 = inst.var.SoftmaxCategorical(["a", "c", "e"]) 
-arg2 = inst.var.SoftmaxCategorical(["a", "c", "e"]) 
-arg2 = inst.var.SoftmaxCategorical(["a", "c", "e"]) 
-arg2 = inst.var.SoftmaxCategorical(["a", "c", "e"]) 
-arg2 = inst.var.SoftmaxCategorical(["a", "c", "e"])  
+# glimpse_hidden = inst.var.SoftmaxCategorical(np.arange(128,5)) 
+# loc_hidden = inst.var.SoftmaxCategorical(np.arange(192,15))
+
+batchnorm_phi = inst.var.SoftmaxCategorical(["True", "False"])
+batchnorm_l = inst.var.SoftmaxCategorical(["True", "False"])
+batchnorm_g = inst.var.SoftmaxCategorical(["True", "False"])
+batchnorm_h = inst.var.SoftmaxCategorical(["True", "False"])
+ 
 
 # continuous
 glimpse_scale = inst.var.Gaussian(mean=2, std=2)  
-weight_decay = inst.var.Gaussian(mean=2, std=2)
-dropout = inst.var.Gaussian(mean=0.5, std=2)
-
-
+weight_decay = inst.var.Gaussian(mean=0.001, std=0.001)
+dropout_phi = inst.var.Gaussian(mean=0.5, std=2)
+dropout_l = inst.var.Gaussian(mean=0.5, std=2)
+dropout_g = inst.var.Gaussian(mean=0.5, std=2)
+dropout_h = inst.var.Gaussian(mean=0.5, std=2)
+"""
+def find_super_params(patch_size=8, glimpse_scale=2, num_patches=1, loc_hidden=256,
+	glimpse_hidden=128, num_glimpses=6, std=0.17, M=10, valid_size=0.1,
+	batch_size=256, weight_decay=0, dropout_phi=0, batchnorm_phi=True, 
+	dropout_l=0, batchnorm_l=True, dropout_g=0, batchnorm_g=True,
+	dropout_h=0, batchnorm_h=True)
+"""
 # create the instrumented function
-instrum = inst.Instrumentation(arg1, arg2, "blublu", value=value)
-# the 3rd arg. is a positional arg. which will be kept constant to "blublu"
-print(instrum.dimension)  # 5 dimensional space
+# put them in order, if it is discrete varible, only give the variable name; if it is continuous, give a pair;
+# if it is constant, only give the constant
+instrum = inst.Instrumentation(patch_size, glimpse_scale=glimpse_scale, num_patches, 256,
+	128, num_glimpses, 0.17, 10, 0.1, 256, weight_decay=weight_decay, dropout_phi=dropout_phi, batchnorm_phi, 
+	dropout_l=dropout_l, batchnorm_l, dropout_g=dropout_g, batchnorm_g,	dropout_h=dropout_h, batchnorm_h)
 
-# The dimension is 5 because:
-# - the 1st discrete variable has 1 possible values, represented by a hard thresholding in
-#   a 1-dimensional space, i.e. we add 1 coordinate to the continuous problem
-# - the 2nd discrete variable has 3 possible values, represented by softmax, i.e. we add 3 coordinates to the continuous problem
-# - the 3rd variable has no uncertainty, so it does not introduce any coordinate in the continuous problem
-# - the 4th variable is a real number, represented by single coordinate.
+print(instrum.dimension)  
 
-
-print(instrum.data_to_arguments([1, -80, -80, 80, 3]))
+#Converts data to arguments to check
+#print(instrum.data_to_arguments([1, -80, -80, 80, 3]))
 # prints (args, kwargs): (('b', 'e', 'blublu'), {'value': 7})
 # b is selected because 1 > 0 (the threshold is 0 here since there are 2 values.
 # e is selected because proba(e) = exp(80) / (exp(80) + exp(-80) + exp(-80))
@@ -134,16 +193,12 @@ print(instrum.data_to_arguments([1, -80, -80, 80, 3]))
 
 
 # create the instrumented function using the "Instrumentation" instance above
-ifunc = instrum.instrument(myfunction)
-print(ifunc.dimension)  # 5 dimensional space as above
+ifunc = instrum.instrument(find_super_params)
+print(ifunc.dimension)  # dimensional space as above
 # you can still access the instrumentation instance will ifunc.instrumentation
 
-ifunc([1, -80, -80, 80, 3])  # will print "b e blublu" and return 49 = 7**2
-# check the instrumentation output explanation above if this is not clear
-
-
-from nevergrad.optimization import optimizerlib
-optimizer = optimizerlib.OnePlusOne(dimension=ifunc.dimension, budget=100)
+import pdb; pdb.set_trace()
+optimizer = optimizerlib.PortfolioDiscreteOnePlusOne(dimension=ifunc.dimension, budget=48) #TwoPointsDE
 recommendation = optimizer.optimize(ifunc)
 
 # recover the arguments this way (don't forget deteriministic=True)

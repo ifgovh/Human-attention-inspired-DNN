@@ -130,17 +130,28 @@ def prepare_dirs(config):
 
 def save_config(config):
     if config.use_gpu:
-	    model_name = 'ram_gpu_{}_{}x{}_{}_{}'.format(
-	        config.PBSarray_ID, config.num_glimpses, 
-            config.patch_size,
-	        config.patch_size, config.glimpse_scale
-	    )
-    else:
-	    model_name = 'ram_{}_{}x{}_{}_{}'.format(
+        model_name = 'ram_gpu_{0}_{1}_{2}x{3}_{4:1.2f}_{5}_{6}_{7}_{8}_{9}_{10}_{11:1.5f}_{12:1.2f}_{13:1.2f}_{14:1.2f}'.format(
             config.PBSarray_ID, config.num_glimpses, 
-            config.patch_size,
-            config.patch_size, config.glimpse_scale, 
+            config.patch_size, config.patch_size,
+            config.glimpse_scale, config.num_patches, 
+            config.batchnorm_flag_phi, config.batchnorm_flag_l,
+            config.batchnorm_flag_g, config.batchnorm_flag_h,
+            config.weight_decay, config.dropout_phi,
+            config.dropout_l, config.dropout_g,
+            config.dropout_h
         )
+    else:
+        model_name = 'ram_{0}_{1}_{2}x{3}_{4:1.2f}_{5}_{6}_{7}_{8}_{9}_{10}_{11:1.5f}_{12:1.2f}_{13:1.2f}_{14:1.2f}'.format(
+            config.PBSarray_ID, config.num_glimpses, 
+            config.patch_size, config.patch_size,
+            config.glimpse_scale, config.num_patches, 
+            config.batchnorm_flag_phi, config.batchnorm_flag_l,
+            config.batchnorm_flag_g, config.batchnorm_flag_h,
+            config.weight_decay, config.dropout_phi,
+            config.dropout_l, config.dropout_g,
+            config.dropout_h
+        )
+        
     filename = model_name + '_params.json'
     param_path = os.path.join(config.ckpt_dir, filename)
 

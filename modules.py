@@ -88,8 +88,7 @@ class retina(object):
         # calculate coordinate for each batch samle (padding considered)
         from_x, from_y = l[:, 0], l[:, 1]
         # normalize size
-        size_norm = size/H
-        # import pdb; pdb.set_trace()()
+        size_norm = size/H        
         # build fluid-flow grid
         if self.use_gpu:
             theta = torch.cuda.FloatTensor(B*2,3).fill_(0)
@@ -106,26 +105,7 @@ class retina(object):
 
         grid = F.affine_grid(theta, torch.Size((B,C,size,size)))
         
-        return F.grid_sample(x,grid,padding_mode='zeros').squeeze() #padding_mode='reflection'
-
-    def denormalize(self, T, coords):
-        """
-        Convert coordinates in the range [-1, 1] to
-        coordinates in the range [0, T] where `T` is
-        the size of the image.
-        """
-        return (0.5 * ((coords + 1.0) * T)).long()
-
-    def exceeds(self, from_x, to_x, from_y, to_y, T):
-        """
-        Check whether the extracted patch will exceed
-        the boundaries of the image of size `T`.
-        """
-        if (
-            (from_x < 0) or (from_y < 0) or (to_x > T) or (to_y > T)
-        ):
-            return True
-        return False
+        return F.grid_sample(x,grid,padding_mode='zeros').squeeze() #padding_mode='reflection'    
 
 
 class glimpse_network(nn.Module):
@@ -180,9 +160,22 @@ class glimpse_network(nn.Module):
         self.fc4 = nn.Linear(h_l, h_g+h_l)
 
         # dropout layer
-        self.dropout = nn.Dropout(config.dropout_glimpse)
+        self.dropout_phi = nn.Dropout(config.dropout_phi)
+        self.dropout_l = nn.Dropout(config.dropout_l)
+        self.dropout_g = nn.Dropout(config.dropout_g)
         # batchnorm layer
-        self.batchnorm_glimpse = nn.BatchNorm2d(3)
+        self.batchnorm_flag_phi = config.batchnorm_flag_phi
+        self.batchnorm_flag_l = config.batchnorm_flag_l
+        self.batchnorm_flag_g = config.batchnorm_flag_g
+
+        if self.batchnorm_flag_phi:
+            self.batchnorm_phi = nn.BatchNorm1d(config.loc_hidden)
+
+        if self.batchnorm_flag_l:
+            self.batchnorm_l = nn.BatchNorm1d(config.glimpse_hidden)
+
+        if self.batchnorm_flag_g:
+            self.batchnorm_g = nn.BatchNorm1d(config.hidden_size)
 
     def forward(self, x, l_t_prev):
         # generate glimpse phi from image x
@@ -191,16 +184,32 @@ class glimpse_network(nn.Module):
         # flatten location vector
         l_t_prev = l_t_prev.view(l_t_prev.size(0), -1)
 
-        # feed phi and l to respective fc layers        
+        # feed phi and l to respective fc layers
+        if self.batchnorm_flag_phi:
+            phi = self.batchnorm_phi(phi)
+
         phi_out = F.relu(self.fc1(phi))
+
+        phi_out = self.dropout_phi(phi_out)
+
+        if self.batchnorm_flag_l:
+            l_t_prev = self.batchnorm_l(l_t_prev)
+
         l_out = F.relu(self.fc2(l_t_prev))
-        import pdb; pdb.set_trace()
+
+        l_out = self.dropout_l(l_out)
+        
         what = self.fc3(phi_out)
         where = self.fc4(l_out)
 
         # feed to fc layer
-        g_t = F.relu(what + where)
-        import pdb; pdb.set_trace()
+        if self.batchnorm_flag_g:
+            g_t_prev = self.batchnorm_g(what + where)
+
+        g_t = F.relu(g_t_prev)
+
+        g_t = self.dropout_g(g_t)
+        
         return g_t
 
 
@@ -242,13 +251,27 @@ class core_network(nn.Module):
 
         self.i2h = nn.Linear(input_size, hidden_size)
         self.h2h = nn.Linear(hidden_size, hidden_size)
-        #import pdb; pdb.set_trace()()
+        # dropout layer
+        self.dropout_h = nn.Dropout(config.dropout_h)
+        
+        # batchnorm layer
+        self.batchnorm_flag_h = config.batchnorm_flag_h        
+
+        if self.batchnorm_flag_h:
+            self.batchnorm_h = nn.BatchNorm1d(config.hidden_size)
+        
     def forward(self, g_t, h_t_prev):
         #import pdb; pdb.set_trace()()
         h1 = self.i2h(g_t)
         h2 = self.h2h(h_t_prev)
-        h_t = F.relu(h1 + h2)
-        import pdb; pdb.set_trace()
+
+        if self.batchnorm_flag_h:
+            h_t = nn.BatchNorm1d(h1 + h2)
+
+        h_t = F.relu(ht)
+
+        h_t = self.dropout_h(h_t)
+
         return h_t
 
 
@@ -324,7 +347,7 @@ class location_network(nn.Module):
     def forward(self, h_t):
         # compute mean
         mu = torch.tanh(self.fc(h_t.detach()))
-        import pdb; pdb.set_trace()
+        
         # reparametrization trick
         noise = torch.zeros_like(mu)
         noise.data.normal_(std=self.std)
@@ -332,7 +355,7 @@ class location_network(nn.Module):
 
         # bound between [-1, 1]
         l_t = torch.tanh(l_t)
-        import pdb; pdb.set_trace()
+        
         return mu, l_t
 
 
@@ -359,5 +382,5 @@ class baseline_network(nn.Module):
 
     def forward(self, h_t):
         b_t = F.relu(self.fc(h_t.detach()))
-        import pdb; pdb.set_trace()
+        
         return b_t

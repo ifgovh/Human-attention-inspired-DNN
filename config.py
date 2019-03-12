@@ -18,7 +18,7 @@ def add_argument_group(name):
 glimpse_arg = add_argument_group('Glimpse Network Params')
 glimpse_arg.add_argument('--patch_size', type=int, default=8,
                          help='size of extracted patch at highest res')
-glimpse_arg.add_argument('--glimpse_scale', type=int, default=2,
+glimpse_arg.add_argument('--glimpse_scale', type=float, default=2,
                          help='scale of successive patches')
 glimpse_arg.add_argument('--num_patches', type=int, default=1,
                          help='# of downscaled patches per glimpse')
@@ -82,26 +82,25 @@ train_arg.add_argument('--loss_fun_baseline', type=str, default='mse',
                        help='The name of loss fucntion of baseline nn')
 train_arg.add_argument('--weight_decay', type=float, default='0',
                        help='weight decay (L2 penalty)')
-train_arg.add_argument('--dropout_glimpse', type=float, default=0,
-                       help='Probability of an element to be zeroed')
-# train_arg.add_argument('--dropout', type=float, default=0,
-#                        help='Probability of an element to be zeroed')
-# train_arg.add_argument('--dropout', type=float, default=0,
-#                        help='Probability of an element to be zeroed')
-# train_arg.add_argument('--dropout', type=float, default=0,
-#                        help='Probability of an element to be zeroed')
-# train_arg.add_argument('--dropout', type=float, default=0,
-#                        help='Probability of an element to be zeroed')
-# train_arg.add_argument('--batchnorm', type=str2bool, default=False,
-#                        help='Whether to add batchnorm layer')
-# train_arg.add_argument('--batchnorm', type=str2bool, default=False,
-#                        help='Whether to add batchnorm layer')
-# train_arg.add_argument('--batchnorm', type=str2bool, default=False,
-#                        help='Whether to add batchnorm layer')
-# train_arg.add_argument('--batchnorm', type=str2bool, default=False,
-#                        help='Whether to add batchnorm layer')
-# train_arg.add_argument('--batchnorm', type=str2bool, default=False,
-#                        help='Whether to add batchnorm layer')
+
+train_arg.add_argument('--dropout_phi', type=float, default=0,
+                       help='Probability of an element to be zeroed on phi the foveated glimpse of the image')
+train_arg.add_argument('--dropout_l', type=float, default=0,
+                       help='Probability of an element to be zeroed on l the combination of glimpse coordinates')
+train_arg.add_argument('--dropout_g', type=float, default=0,
+                       help='Probability of an element to be zeroed on g the combination of what and where')
+train_arg.add_argument('--dropout_h', type=float, default=0,
+                       help='Probability of an element to be zeroed on hidden layer')
+
+train_arg.add_argument('--batchnorm_flag_phi', type=str2bool, default=False,
+                       help='Whether to add batchnorm layer on phi the foveated glimpse of the image')
+train_arg.add_argument('--batchnorm_flag_l', type=str2bool, default=False,
+                       help='Whether to add batchnorm layer on l the combination of glimpse coordinates')
+train_arg.add_argument('--batchnorm_flag_g', type=str2bool, default=False,
+                       help='Whether to add batchnorm layer on g the combination of what and where')
+train_arg.add_argument('--batchnorm_flag_h', type=str2bool, default=False,
+                       help='Whether to add batchnorm layer on hidden layer')
+
 
 # other params
 misc_arg = add_argument_group('Misc.')

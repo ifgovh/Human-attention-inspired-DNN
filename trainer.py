@@ -102,17 +102,27 @@ class Trainer(object):
         self.resume = config.resume
         self.print_freq = config.print_freq
         self.plot_freq = config.plot_freq
-        if self.use_gpu:
-            self.model_name = 'ram_gpu_{}_{}x{}_{}_{}'.format(
+        if config.use_gpu:
+            model_name = 'ram_gpu_{0}_{1}_{2}x{3}_{4:1.2f}_{5}_{6}_{7}_{8}_{9}_{10}_{11:1.5f}_{12:1.2f}_{13:1.2f}_{14:1.2f}'.format(
                 config.PBSarray_ID, config.num_glimpses, 
-                config.patch_size,
-                config.patch_size, config.glimpse_scale                
+                config.patch_size, config.patch_size,
+                config.glimpse_scale, config.num_patches, 
+                config.batchnorm_flag_phi, config.batchnorm_flag_l,
+                config.batchnorm_flag_g, config.batchnorm_flag_h,
+                config.weight_decay, config.dropout_phi,
+                config.dropout_l, config.dropout_g,
+                config.dropout_h
             )
         else:
-            self.model_name = 'ram_{}_{}x{}_{}_{}'.format(
+            model_name = 'ram_{0}_{1}_{2}x{3}_{4:1.2f}_{5}_{6}_{7}_{8}_{9}_{10}_{11:1.5f}_{12:1.2f}_{13:1.2f}_{14:1.2f}'.format(
                 config.PBSarray_ID, config.num_glimpses, 
-                config.patch_size,
-                config.patch_size, config.glimpse_scale                
+                config.patch_size, config.patch_size,
+                config.glimpse_scale, config.num_patches, 
+                config.batchnorm_flag_phi, config.batchnorm_flag_l,
+                config.batchnorm_flag_g, config.batchnorm_flag_h,
+                config.weight_decay, config.dropout_phi,
+                config.dropout_l, config.dropout_g,
+                config.dropout_h
             )
 
         self.plot_dir = './plots/' + self.model_name + '/'
