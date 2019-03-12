@@ -107,7 +107,7 @@ def find_super_params(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidde
 	config.batchnorm_flag_h = batchnorm_flag_h
 	
 	# other params
-	config.use_gpu = False#True;
+	config.use_gpu = True;
 	config.best = True;
 	config.random_seed = 1;
 	config.data_dir = './data';
@@ -149,29 +149,6 @@ def find_super_params(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidde
 	return 100 - best_model_file['best_valid_acc']
 
 
-patch_size = inst.var.SoftmaxCategorical(np.arange(5,20)) 
-num_patches = inst.var.SoftmaxCategorical(np.arange(1,5)) 
-num_glimpses = inst.var.SoftmaxCategorical(np.arange(5,15))
-# glimpse_hidden = inst.var.SoftmaxCategorical(np.arange(128,5)) 
-# loc_hidden = inst.var.SoftmaxCategorical(np.arange(192,15))
-
-batchnorm_phi = inst.var.SoftmaxCategorical(["True", "False"])
-batchnorm_l = inst.var.SoftmaxCategorical(["True", "False"])
-batchnorm_g = inst.var.SoftmaxCategorical(["True", "False"])
-batchnorm_h = inst.var.SoftmaxCategorical(["True", "False"])
- 
-
-# continuous
-glimpse_scale = inst.var.Gaussian(mean=2, std=2)  
-weight_decay = inst.var.Gaussian(mean=0.001, std=0.001)
-dropout_phi = inst.var.Gaussian(mean=0.5, std=2)
-dropout_l = inst.var.Gaussian(mean=0.5, std=2)
-dropout_g = inst.var.Gaussian(mean=0.5, std=2)
-dropout_h = inst.var.Gaussian(mean=0.5, std=2)
-	
-
-
-
 # Instrumentation
 # argument transformation
 """
@@ -190,9 +167,9 @@ use OrderedDiscrete for discrete variables, taking care that the default value i
 Use ScrHammersleySearchPlusMiddlePoint (PlusMiddlePoint only if you have continuous parameters or good default values for discrete parameters).
 """
 # dicrete
-patch_size = inst.var.SoftmaxCategorical(np.arange(5,20)) 
-num_patches = inst.var.SoftmaxCategorical(np.arange(1,5)) 
-num_glimpses = inst.var.SoftmaxCategorical(np.arange(5,15))
+patch_size = inst.var.SoftmaxCategorical(np.arange(5,20).tolist()) 
+num_patches = inst.var.SoftmaxCategorical(np.arange(1,5).tolist()) 
+num_glimpses = inst.var.SoftmaxCategorical(np.arange(5,15).tolist())
 # glimpse_hidden = inst.var.SoftmaxCategorical(np.arange(128,5)) 
 # loc_hidden = inst.var.SoftmaxCategorical(np.arange(192,15))
 
@@ -239,7 +216,8 @@ print(ifunc.dimension)  # dimensional space as above
 # you can still access the instrumentation instance will ifunc.instrumentation
 
 #import pdb; pdb.set_trace()
-optimizer = optimizerlib.PortfolioDiscreteOnePlusOne(dimension=ifunc.dimension, budget=48) #TwoPointsDE
+optimizer = optimizerlib.PortfolioDiscreteOnePlusOne(dimension=ifunc.dimension, 
+	budget=1, num_workers=1) #TwoPointsDE
 recommendation = optimizer.optimize(ifunc)
 
 # recover the arguments this way (don't forget deteriministic=True)

@@ -158,5 +158,5 @@ def save_config(config):
     print("[*] Model Checkpoint Dir: {}".format(config.ckpt_dir))
     print("[*] Param Path: {}".format(param_path))
 
-    with open(param_path, 'w') as fp:
+    with open(param_path, 'w') as fp:        
         json.dump(config.__dict__, fp, indent=4, sort_keys=True)

@@ -56,7 +56,7 @@ class retina(object):
         for i in range(self.k):
             phi.append(self.extract_patch(x, l, size))
             size = int(self.s * size)
-
+        
         # resize the patches to squares of size g
         for i in range(1, len(phi)):
             k = phi[i].shape[-1] // self.g
@@ -65,7 +65,7 @@ class retina(object):
         # concatenate into a single tensor and flatten
         phi = torch.cat(phi, 1)
         phi = phi.view(phi.shape[0], -1)
-
+        
         return phi
 
     def extract_patch(self, x, l, size):
@@ -150,8 +150,8 @@ class glimpse_network(nn.Module):
         self.retina = retina(g, k, s, config)
 
         # glimpse layer
-        D_in = k*g*g*c
-        self.fc1 = nn.Linear(D_in, h_g)
+        self.D_in_glimpse = k*g*g*c
+        self.fc1 = nn.Linear(self.D_in_glimpse, h_g)
 
         # location layer
         D_in = 2
@@ -169,13 +169,13 @@ class glimpse_network(nn.Module):
         self.batchnorm_flag_g = config.batchnorm_flag_g
 
         if self.batchnorm_flag_phi:
-            self.batchnorm_phi = nn.BatchNorm1d(config.loc_hidden)
+            self.batchnorm_phi = nn.BatchNorm1d(self.D_in_glimpse)
 
         if self.batchnorm_flag_l:
-            self.batchnorm_l = nn.BatchNorm1d(config.glimpse_hidden)
+            self.batchnorm_l = nn.BatchNorm1d(h_l)
 
         if self.batchnorm_flag_g:
-            self.batchnorm_g = nn.BatchNorm1d(config.hidden_size)
+            self.batchnorm_g = nn.BatchNorm1d(h_g+h_l)        
 
     def forward(self, x, l_t_prev):
         # generate glimpse phi from image x
@@ -183,30 +183,29 @@ class glimpse_network(nn.Module):
 
         # flatten location vector
         l_t_prev = l_t_prev.view(l_t_prev.size(0), -1)
-
+        
         # feed phi and l to respective fc layers
         if self.batchnorm_flag_phi:
             phi = self.batchnorm_phi(phi)
 
         phi_out = F.relu(self.fc1(phi))
-
-        phi_out = self.dropout_phi(phi_out)
-
-        if self.batchnorm_flag_l:
-            l_t_prev = self.batchnorm_l(l_t_prev)
-
-        l_out = F.relu(self.fc2(l_t_prev))
-
-        l_out = self.dropout_l(l_out)
+        phi_out = self.dropout_phi(phi_out)        
+        l_in = self.fc2(l_t_prev)
         
+        if self.batchnorm_flag_l:
+            l_in = self.batchnorm_l(l_in)
+
+        l_out = F.relu(l_in)
+        l_out = self.dropout_l(l_out)        
         what = self.fc3(phi_out)
         where = self.fc4(l_out)
 
         # feed to fc layer
         if self.batchnorm_flag_g:
-            g_t_prev = self.batchnorm_g(what + where)
-
-        g_t = F.relu(g_t_prev)
+            g_t_prev = self.batchnorm_g(what + where) # ToDo: batch normalization for what and where seperately
+            g_t = F.relu(g_t_prev)
+        else:   
+            g_t = F.relu(what + where)
 
         g_t = self.dropout_g(g_t)
         
@@ -258,17 +257,17 @@ class core_network(nn.Module):
         self.batchnorm_flag_h = config.batchnorm_flag_h        
 
         if self.batchnorm_flag_h:
-            self.batchnorm_h = nn.BatchNorm1d(config.hidden_size)
+            self.batchnorm_h = nn.BatchNorm1d(hidden_size)
         
-    def forward(self, g_t, h_t_prev):
-        #import pdb; pdb.set_trace()()
+    def forward(self, g_t, h_t_prev):        
         h1 = self.i2h(g_t)
         h2 = self.h2h(h_t_prev)
-
+        
         if self.batchnorm_flag_h:
-            h_t = nn.BatchNorm1d(h1 + h2)
-
-        h_t = F.relu(ht)
+            h_t = self.batchnorm_h(h1 + h2)
+            h_t = F.relu(h_t)
+        else:
+            h_t = F.relu(h1 + h2)
 
         h_t = self.dropout_h(h_t)
 
