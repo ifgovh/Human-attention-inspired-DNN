@@ -3,11 +3,11 @@ import torch
 import numpy as np
 from nevergrad.optimization import optimizerlib
 
-def find_super_params(patch_size=8, glimpse_scale=2, num_patches=1, loc_hidden=256,
-	glimpse_hidden=128, num_glimpses=6, std=0.17, M=10, valid_size=0.1,
-	batch_size=256, weight_decay=0, dropout_phi=0, batchnorm_phi=True, 
-	dropout_l=0, batchnorm_l=True, dropout_g=0, batchnorm_g=True,
-	dropout_h=0, batchnorm_h=True):
+def find_super_params(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidden=128, 
+	num_glimpses=6, std=0.17, M=10, valid_size=0.1, batch_size=256, batchnorm_phi=True,
+	batchnorm_l=True, batchnorm_g=True, batchnorm_h=True, glimpse_scale=2, weight_decay=0,
+	dropout_phi=0, dropout_l=0,  dropout_g=0, dropout_h=0):
+
 
 	# glimpse network params
 	config.patch_size = patch_size;
@@ -134,11 +134,10 @@ dropout_h = inst.var.Gaussian(mean=0.5, std=2)
 # Instrumentation
 # argument transformation
 """
-def find_super_params(patch_size=8, glimpse_scale=2, num_patches=1, loc_hidden=256,
-	glimpse_hidden=128, num_glimpses=6, std=0.17, M=10, valid_size=0.1,
-	batch_size=256, weight_decay=0, dropout_phi=0, batchnorm_phi=True, 
-	dropout_l=0, batchnorm_l=True, dropout_g=0, batchnorm_g=True,
-	dropout_h=0, batchnorm_h=True)
+def find_super_params(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidden=128, 
+	num_glimpses=6, std=0.17, M=10, valid_size=0.1, batch_size=256, batchnorm_phi=True,
+	batchnorm_l=True, batchnorm_g=True, batchnorm_h=True, glimpse_scale=2, weight_decay=0,
+	dropout_phi=0, dropout_l=0,  dropout_g=0, dropout_h=0):
 
 When optimizing hyperparameters as e.g. in machine learning. If you don't know what variables (see instrumentation) to use:
 
@@ -170,18 +169,18 @@ dropout_l = inst.var.Gaussian(mean=0.5, std=2)
 dropout_g = inst.var.Gaussian(mean=0.5, std=2)
 dropout_h = inst.var.Gaussian(mean=0.5, std=2)
 """
-def find_super_params(patch_size=8, glimpse_scale=2, num_patches=1, loc_hidden=256,
-	glimpse_hidden=128, num_glimpses=6, std=0.17, M=10, valid_size=0.1,
-	batch_size=256, weight_decay=0, dropout_phi=0, batchnorm_phi=True, 
-	dropout_l=0, batchnorm_l=True, dropout_g=0, batchnorm_g=True,
-	dropout_h=0, batchnorm_h=True)
+def find_super_params(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidden=128, 
+	num_glimpses=6, std=0.17, M=10, valid_size=0.1, batch_size=256, batchnorm_phi=True,
+	batchnorm_l=True, batchnorm_g=True, batchnorm_h=True, glimpse_scale=2, weight_decay=0,
+	dropout_phi=0, dropout_l=0,  dropout_g=0, dropout_h=0):
 """
 # create the instrumented function
 # put them in order, if it is discrete varible, only give the variable name; if it is continuous, give a pair;
 # if it is constant, only give the constant
-instrum = inst.Instrumentation(patch_size, glimpse_scale=glimpse_scale, num_patches, 256,
-	128, num_glimpses, 0.17, 10, 0.1, 256, weight_decay=weight_decay, dropout_phi=dropout_phi, batchnorm_phi, 
-	dropout_l=dropout_l, batchnorm_l, dropout_g=dropout_g, batchnorm_g,	dropout_h=dropout_h, batchnorm_h)
+instrum = inst.Instrumentation(patch_size,  num_patches, 256, 128, num_glimpses,
+	0.17, 10, 0.1, 256, batchnorm_phi, batchnorm_l, batchnorm_g, batchnorm_h, 
+	glimpse_scale=glimpse_scale, weight_decay=weight_decay, dropout_phi=dropout_phi,  
+	dropout_l=dropout_l,  dropout_g=dropout_g, 	dropout_h=dropout_h)
 
 print(instrum.dimension)  
 
