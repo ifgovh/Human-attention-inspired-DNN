@@ -8,7 +8,29 @@ def find_super_params(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidde
 	batchnorm_l=True, batchnorm_g=True, batchnorm_h=True, glimpse_scale=2, weight_decay=0,
 	dropout_phi=0, dropout_l=0,  dropout_g=0, dropout_h=0):
 
+    class CONFIG:
+    	patch_size=8
+    	num_patches=1
+    	loc_hidden=256
+    	glimpse_hidden=128
+    	num_glimpses=6
+    	std=0.17
+    	M=10
+    	valid_size=0.1
+    	batch_size=256
+    	batchnorm_phi=True
+    	batchnorm_l=True
+    	batchnorm_g=True
+    	batchnorm_h=True
+    	glimpse_scale=2
+    	weight_decay=0
+    	dropout_phi=0
+    	dropout_l=0
+    	dropout_g=0
+    	dropout_h=0
 
+    config = CONFIG()
+    
 	# glimpse network params
 	config.patch_size = patch_size;
 	config.glimpse_scale = glimpse_scale;
