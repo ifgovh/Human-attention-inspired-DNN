@@ -7,7 +7,7 @@ def find_super_params(patch_size=8, glimpse_scale=2, num_patches=1, loc_hidden=2
 	glimpse_hidden=128, num_glimpses=6, std=0.17, M=10, valid_size=0.1,
 	batch_size=256, weight_decay=0, dropout_phi=0, batchnorm_phi=True, 
 	dropout_l=0, batchnorm_l=True, dropout_g=0, batchnorm_g=True,
-	dropout_h=0, batchnorm_h=True)
+	dropout_h=0, batchnorm_h=True):
 
 	# glimpse network params
 	config.patch_size = patch_size;
@@ -60,10 +60,10 @@ def find_super_params(patch_size=8, glimpse_scale=2, num_patches=1, loc_hidden=2
 	config.dropout_h = dropout_h
 
 	# batch normalization
-	config. = batchnorm_flag_phi
-	config. = batchnorm_flag_l
-	config. = batchnorm_flag_g
-	config. = batchnorm_flag_h
+	config.batchnorm_flag_phi = batchnorm_flag_phi
+	config.batchnorm_flag_l = batchnorm_flag_l
+	config.batchnorm_flag_g = batchnorm_flag_g
+	config.batchnorm_flag_h = batchnorm_flag_h
 	
 	# other params
 	config.use_gpu = True;
@@ -81,29 +81,30 @@ def find_super_params(patch_size=8, glimpse_scale=2, num_patches=1, loc_hidden=2
 	main(config)
 
 	# read best model
-    if config.use_gpu:
-	    model_name = 'ram_gpu_{0}_{1}_{2}x{3}_{4:1.2f}_{5}_{6}_{7}_{8}_{9}_{10}_{11:1.5f}_{12:1.2f}_{13:1.2f}_{14:1.2f}'.format(
-	        config.PBSarray_ID, config.num_glimpses, 
-            config.patch_size, config.patch_size,
-            config.glimpse_scale, config.num_patches, 
-            config.batchnorm_flag_phi, config.batchnorm_flag_l,
-            config.batchnorm_flag_g, config.batchnorm_flag_h,
-            config.weight_decay, config.dropout_phi,
-            config.dropout_l, config.dropout_g,
-            config.dropout_h
-	    )
-    else:
-	    model_name = 'ram_{0}_{1}_{2}x{3}_{4:1.2f}_{5}_{6}_{7}_{8}_{9}_{10}_{11:1.5f}_{12:1.2f}_{13:1.2f}_{14:1.2f}'.format(
-	        config.PBSarray_ID, config.num_glimpses, 
-            config.patch_size, config.patch_size,
-            config.glimpse_scale, config.num_patches, 
-            config.batchnorm_flag_phi, config.batchnorm_flag_l,
-            config.batchnorm_flag_g, config.batchnorm_flag_h,
-            config.weight_decay, config.dropout_phi,
-            config.dropout_l, config.dropout_g,
-            config.dropout_h
-	    )
+	if config.use_gpu:
+		model_name = 'ram_gpu_{0}_{1}_{2}x{3}_{4:1.2f}_{5}_{6}_{7}_{8}_{9}_{10}_{11:1.5f}_{12:1.2f}_{13:1.2f}_{14:1.2f}'.format(
+				config.PBSarray_ID, config.num_glimpses, 
+				config.patch_size, config.patch_size,
+				config.glimpse_scale, config.num_patches, 
+				config.batchnorm_flag_phi, config.batchnorm_flag_l,
+				config.batchnorm_flag_g, config.batchnorm_flag_h,
+				config.weight_decay, config.dropout_phi,
+				config.dropout_l, config.dropout_g,
+				config.dropout_h)                            
+	else:
+		model_name = 'ram_{0}_{1}_{2}x{3}_{4:1.2f}_{5}_{6}_{7}_{8}_{9}_{10}_{11:1.5f}_{12:1.2f}_{13:1.2f}_{14:1.2f}'.format(
+				config.PBSarray_ID, config.num_glimpses, 
+				config.patch_size, config.patch_size,
+				config.glimpse_scale, config.num_patches, 
+				config.batchnorm_flag_phi, config.batchnorm_flag_l,
+				config.batchnorm_flag_g, config.batchnorm_flag_h,
+				config.weight_decay, config.dropout_phi,
+				config.dropout_l, config.dropout_g,
+				config.dropout_h)   
+	
+
 	best_model_file = torch.load(model_name + '_model_best.pth.tar')
+
 	return 100 - best_model_file['best_valid_acc']
 
 
@@ -126,7 +127,7 @@ dropout_phi = inst.var.Gaussian(mean=0.5, std=2)
 dropout_l = inst.var.Gaussian(mean=0.5, std=2)
 dropout_g = inst.var.Gaussian(mean=0.5, std=2)
 dropout_h = inst.var.Gaussian(mean=0.5, std=2)
-
+	
 
 
 
