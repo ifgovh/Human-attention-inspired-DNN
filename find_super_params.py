@@ -2,35 +2,56 @@ from nevergrad import instrumentation as inst
 import torch
 import numpy as np
 from nevergrad.optimization import optimizerlib
+from main import main
 
 def find_super_params(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidden=128, 
-	num_glimpses=6, std=0.17, M=10, valid_size=0.1, batch_size=256, batchnorm_phi=True,
-	batchnorm_l=True, batchnorm_g=True, batchnorm_h=True, glimpse_scale=2, weight_decay=0,
+	num_glimpses=6, std=0.17, M=10, valid_size=0.1, batch_size=256, batchnorm_flag_phi=True,
+	batchnorm_flag_l=True, batchnorm_flag_g=True, batchnorm_flag_h=True, glimpse_scale=2, weight_decay=0,
 	dropout_phi=0, dropout_l=0,  dropout_g=0, dropout_h=0):
 
-    class CONFIG:
-    	patch_size=8
-    	num_patches=1
-    	loc_hidden=256
-    	glimpse_hidden=128
-    	num_glimpses=6
-    	std=0.17
-    	M=10
-    	valid_size=0.1
-    	batch_size=256
-    	batchnorm_phi=True
-    	batchnorm_l=True
-    	batchnorm_g=True
-    	batchnorm_h=True
-    	glimpse_scale=2
-    	weight_decay=0
-    	dropout_phi=0
-    	dropout_l=0
-    	dropout_g=0
-    	dropout_h=0
+	class CONFIG:
+		patch_size=8
+		num_patches=1
+		loc_hidden=256
+		glimpse_hidden=128
+		num_glimpses=6
+		std=0.17
+		M=10
+		valid_size=0.1
+		batch_size=256
+		batchnorm_phi=True
+		batchnorm_l=True
+		batchnorm_g=True
+		batchnorm_h=True
+		glimpse_scale=2
+		weight_decay=0
+		dropout_phi=0
+		dropout_l=0
+		dropout_g=0
+		dropout_h=0
+		num_workers = 4;
+		shuffle = True;
+		show_sample = False;
+		dataset_name = 'CIFAR';
+		is_train = True;
+		train_patience = 200;
+		optimizer = 'Adam';
+		loss_fun_action = 'nll';
+		loss_fun_baseline = 'mse';
+		use_gpu = True;
+		best = True;
+		random_seed = 1;
+		data_dir = './data';
+		ckpt_dir = './ckpt';
+		logs_dir = './logs/';
+		use_tensorboard = False;
+		resume = False;
+		print_freq = 10;
+		plot_freq = 1;
+		PBSarray_ID = 0;
 
-    config = CONFIG()
-    
+	config = CONFIG()
+	
 	# glimpse network params
 	config.patch_size = patch_size;
 	config.glimpse_scale = glimpse_scale;
@@ -60,20 +81,18 @@ def find_super_params(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidde
 
 	# training params
 	config.is_train = True;
-	# # SGD
-	# config.momentum = momentum;
-	# config.init_lr = init_lr;
-	# config.epochs = 2000;
-	# # ReduceLRonPlatean
-	# config.lr_patience = lr_patience;
+	# SGD
+	config.momentum = 0.5#momentum;
+	config.init_lr = 3e-4#init_lr;	
+	# ReduceLRonPlatean
+	config.lr_patience = 10#lr_patience;
+	config.epochs = 2000;
 	config.train_patience = 200;
 	config.optimizer = 'Adam';
 	config.loss_fun_action = 'nll';
 	config.loss_fun_baseline = 'mse';
 	# weight decay (L2 penalty)
 	config.weight_decay = weight_decay;
-	config.dropout = dropout;
-	config.batchnorm = batchnorm;
 
 	# dropout
 	config.dropout_phi = dropout_phi
@@ -88,7 +107,7 @@ def find_super_params(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidde
 	config.batchnorm_flag_h = batchnorm_flag_h
 	
 	# other params
-	config.use_gpu = True;
+	config.use_gpu = False#True;
 	config.best = True;
 	config.random_seed = 1;
 	config.data_dir = './data';
@@ -219,7 +238,7 @@ ifunc = instrum.instrument(find_super_params)
 print(ifunc.dimension)  # dimensional space as above
 # you can still access the instrumentation instance will ifunc.instrumentation
 
-import pdb; pdb.set_trace()
+#import pdb; pdb.set_trace()
 optimizer = optimizerlib.PortfolioDiscreteOnePlusOne(dimension=ifunc.dimension, budget=48) #TwoPointsDE
 recommendation = optimizer.optimize(ifunc)
 

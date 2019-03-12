@@ -244,7 +244,7 @@ class core_network(nn.Module):
     - h_t: a 2D tensor of shape (B, hidden_size). The hidden
       state vector for the current timestep `t`.
     """
-    def __init__(self, input_size, hidden_size):
+    def __init__(self, input_size, hidden_size, config):
         super(core_network, self).__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size

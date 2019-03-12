@@ -103,7 +103,7 @@ class Trainer(object):
         self.print_freq = config.print_freq
         self.plot_freq = config.plot_freq
         if config.use_gpu:
-            model_name = 'ram_gpu_{0}_{1}_{2}x{3}_{4:1.2f}_{5}_{6}_{7}_{8}_{9}_{10}_{11:1.5f}_{12:1.2f}_{13:1.2f}_{14:1.2f}'.format(
+            self.model_name = 'ram_gpu_{0}_{1}_{2}x{3}_{4:1.2f}_{5}_{6}_{7}_{8}_{9}_{10}_{11:1.5f}_{12:1.2f}_{13:1.2f}_{14:1.2f}'.format(
                 config.PBSarray_ID, config.num_glimpses, 
                 config.patch_size, config.patch_size,
                 config.glimpse_scale, config.num_patches, 
@@ -114,7 +114,7 @@ class Trainer(object):
                 config.dropout_h
             )
         else:
-            model_name = 'ram_{0}_{1}_{2}x{3}_{4:1.2f}_{5}_{6}_{7}_{8}_{9}_{10}_{11:1.5f}_{12:1.2f}_{13:1.2f}_{14:1.2f}'.format(
+            self.model_name = 'ram_{0}_{1}_{2}x{3}_{4:1.2f}_{5}_{6}_{7}_{8}_{9}_{10}_{11:1.5f}_{12:1.2f}_{13:1.2f}_{14:1.2f}'.format(
                 config.PBSarray_ID, config.num_glimpses, 
                 config.patch_size, config.patch_size,
                 config.glimpse_scale, config.num_patches, 
