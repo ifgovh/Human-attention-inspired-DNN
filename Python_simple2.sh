@@ -2,7 +2,7 @@
 #PBS -P cortical
 #PBS -N find_super_params
 #PBS -q defaultQ 
-#PBS -l select=1:ncpus=4:ngpus=4:mem=64gb
+#PBS -l select=1:ncpus=16:mem=8gb
 #PBS -l walltime=150:59:59
 #PBS -e PBSout_GPU/
 #PBS -o PBSout_GPU/
@@ -14,5 +14,5 @@ source tf/bin/activate
 cd "$PBS_O_WORKDIR"
 params=`sed "${PBS_ARRAY_INDEX}q;d" job_params`
 param_array=( $params )
-python3 find_super_params.py
+python3 find_super_params_cpu.py
 

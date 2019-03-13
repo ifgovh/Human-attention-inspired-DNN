@@ -107,7 +107,7 @@ def find_super_params(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidde
 	config.batchnorm_flag_h = batchnorm_flag_h
 	
 	# other params
-	config.use_gpu = True;
+	config.use_gpu = False;
 	config.best = True;
 	config.random_seed = 1;
 	config.data_dir = './data/';
@@ -222,7 +222,8 @@ print(ifunc.dimension)  # dimensional space as above
 # you can still access the instrumentation instance will ifunc.instrumentation
 
 optimizer = optimizerlib.PortfolioDiscreteOnePlusOne(dimension=ifunc.dimension, 
-	budget=50, num_workers=4) #TwoPointsDE
+	budget=50, num_workers=8) #TwoPointsDE
+# import pdb; pdb.set_trace()
 # simple example
 #recommendation = optimizer.optimize(ifunc)
 # using several workers
