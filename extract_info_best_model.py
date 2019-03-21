@@ -11,11 +11,14 @@ file_name = glob.glob('./*ckpt.pth.tar')
 best_train_acc = np.zeros([len(file_name),1])
 best_valid_acc = np.zeros([len(file_name),1])
 for i in range(len(file_name)):
-	temp = torch.load(file_name[i], map_location='cpu')
-	best_train_acc[i] = temp['best_train_acc']
-	best_valid_acc[i] = temp['best_valid_acc']
-	print(file_name[i] + '_best_train_acc_{}_best_valid_acc_{}_epoch_{}'.format(
-		temp['best_train_acc'], temp['best_valid_acc'], temp['epoch']) + '\n')
+    try:
+        temp = torch.load(file_name[i], map_location='cpu')
+        best_train_acc[i] = temp['best_train_acc']
+        best_valid_acc[i] = temp['best_valid_acc']
+        print(file_name[i] + '_best_train_acc_{}_best_valid_acc_{}_epoch_{}'.format(
+            temp['best_train_acc'], temp['best_valid_acc'], temp['epoch']) + '\n')
+    except:
+        print(file_name[i]+' is broken!')
 
 sio.savemat("/project/cortical/RVA-Fractional_motion/ckpt/best_acc.mat",
                         mdict={'best_train_acc':best_valid_acc,'patch':best_valid_acc})

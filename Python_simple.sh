@@ -2,7 +2,7 @@
 #PBS -P cortical
 #PBS -N find_super_params
 #PBS -q defaultQ 
-#PBS -l select=1:ncpus=4:ngpus=4:mem=64gb
+#PBS -l select=1:ncpus=1:ngpus=1:mem=12gb
 #PBS -l walltime=150:59:59
 #PBS -e PBSout_GPU/
 #PBS -o PBSout_GPU/

@@ -222,7 +222,7 @@ def find_super_params_cpu():
 	# you can still access the instrumentation instance will ifunc.instrumentation
 
 	optimizer = optimizerlib.PortfolioDiscreteOnePlusOne(dimension=ifunc.dimension, 
-		budget=50, num_workers=8) #TwoPointsDE
+		budget=50, num_workers=4) #TwoPointsDE
 	# import pdb; pdb.set_trace()
 	# simple example
 	#recommendation = optimizer.optimize(ifunc)
