@@ -127,7 +127,7 @@ class Trainer(object):
 
         self.plot_dir = './plots/' + self.model_name + '/'
         if not os.path.exists(self.plot_dir):
-            os.makedirs(self.plot_dir)
+            os.makedirs(self.plot_dir, exist_ok=True)
 
         # configure tensorboard logging
         if self.use_tensorboard:
