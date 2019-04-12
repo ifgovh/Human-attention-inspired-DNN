@@ -3,19 +3,26 @@
 #PBS -N GPU_training
 #PBS -q defaultQ 
 #PBS -l select=1:ncpus=1:ngpus=1:mem=4gb
-#PBS -l walltime=3:59:59
+#PBS -l walltime=8:59:59
 #PBS -e PBSout_GPU/
 #PBS -o PBSout_GPU/
-#PBS -J 1-8
+##PBS -J 1-8
 
-#module load python/3.6.5
+# make sure you have built a virtual system on python 3.6.5 
+# and install pytorch just like how you install tensorflow on HPC:
+# 	virtualenv --system-site-packages tf #tf is in your home directory
+#	module load cuda/9.1.85 openmpi-gcc/3.0.0-cuda
+#	pip install /usr/local/pytorch/torch-1.0.0a0+1a247f8.magma.cuda.9.1-cp36-cp36m-linux_x86_64.whl
+
+module load python/3.6.5
+module load cuda/9.1.85 openmpi-gcc/3.0.0-cuda
+
 cd ~
 source tf/bin/activate
 cd "$PBS_O_WORKDIR"
 params=`sed "${PBS_ARRAY_INDEX}q;d" job_params_gpu`
 param_array=( $params )
-python3 main.py --loc_hidden=256 --glimpse_hidden=${param_array[0]} --hidden_size=${param_array[1]} --batch_size=256 --num_glimpse=6\
- --weight_decay=0  --dataset_name='CIFAR' --patch_size=${param_array[2]} --epochs=2000 --train_patience=1000\
-  --PBSarray_ID=${PBS_ARRAY_INDEX} --use_gpu=True
-
-#--batch_szie= --loc_hidden=192 --hidden_size=320 --glimpse_hidden= --num_glimpse= --glimpse_scale= --loss_fun_action= --loss_fun_baseline= 
+python3 main.py --patch_size=13 --num_patches=1 --loc_hidden=256 --glimpse_hidden=128 --num_glimpses=10 --std=0.17 --M=10\
+--valid_size=0.1 --batch_size=256 --batchnorm_flag_phi=True	--batchnorm_flag_l=True --batchnorm_flag_g=True\
+--batchnorm_flag_h=True --glimpse_scale=1 --weight_decay=0.002 --dropout_phi=0.2 --dropout_l=0.3 --dropout_g=0.2 --dropout_h=0.3\
+--use_gpu =Ture --dataset_name = 'CIFAR' --train_patience = 200
