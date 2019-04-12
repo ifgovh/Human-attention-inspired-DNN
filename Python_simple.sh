@@ -3,7 +3,7 @@
 #PBS -N find_super_params
 #PBS -q defaultQ 
 #PBS -l select=1:ncpus=1:ngpus=1:mem=12gb
-#PBS -l walltime=150:59:59
+#PBS -l walltime=120:59:59
 #PBS -e PBSout_GPU/
 #PBS -o PBSout_GPU/
 ##PBS -J 1-30
