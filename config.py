@@ -42,6 +42,12 @@ reinforce_arg.add_argument('--std', type=float, default=0.17,
                            help='gaussian policy standard deviation')
 reinforce_arg.add_argument('--M', type=float, default=10,
                            help='Monte Carlo sampling for valid and test sets')
+# for symmetry stable distribution
+reinforce_arg.add_argument('--alpha', type=float, default=1.4,
+                           help='symmetry stable policy first shape parameter')
+reinforce_arg.add_argument('--gamma', type=float, default=0.9,
+                           help='symmetry stable policy scale parameter')
+
 
 
 # data params

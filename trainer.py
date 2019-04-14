@@ -408,7 +408,7 @@ class Trainer(object):
                 x, y = x.cuda(), y.cuda()
             x, y = Variable(x), Variable(y)
 
-            # duplicate 10 times
+            # duplicate M times
             x = x.repeat(self.M, 1, 1, 1)
 
             # initialize location vector and hidden state

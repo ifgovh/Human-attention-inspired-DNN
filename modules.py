@@ -343,14 +343,14 @@ class location_network(nn.Module):
         self.std = std
         self.fc = nn.Linear(input_size, output_size)
 
-    def forward(self, h_t):
+    def forward(self, h_t, l_t_prev):
         # compute mean
         mu = torch.tanh(self.fc(h_t.detach()))
         
         # reparametrization trick
         noise = torch.zeros_like(mu)
         noise.data.normal_(std=self.std)
-        l_t = mu + noise
+        l_t = mu + noise + l_t_prev # previous: l_t = mu + noise, now I change the mu + noise as the delta_x
 
         # bound between [-1, 1]
         l_t = torch.tanh(l_t)

@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 
 from torch.distributions import Normal
+from scipy.stats.levy_stable import levy_stable
 
 from modules import baseline_network
 from modules import glimpse_network, core_network
@@ -55,7 +56,13 @@ class RecurrentAttention(nn.Module):
           i.e. number of BPTT steps.
         """
         super(RecurrentAttention, self).__init__()
+        # when the locations l is defined by a Gaussian distribution
         self.std = std
+
+        # when the locations l is defined by a symmetry stable distribution
+        self.alpha = config.alpha 
+        self.gamma = config.gamma
+
 
         self.sensor = glimpse_network(h_g, h_l, g, k, s, c, config)
         self.rnn = core_network(hidden_size, hidden_size, config)
@@ -101,13 +108,20 @@ class RecurrentAttention(nn.Module):
         """
         g_t = self.sensor(x, l_t_prev)
         h_t = self.rnn(g_t, h_t_prev)
-        mu, l_t = self.locator(h_t)
+        mu, l_t = self.locator(h_t, l_t_prev) #mu, l_t = self.locator(h_t)
         b_t = self.baseliner(h_t).squeeze()
 
         # we assume both dimensions are independent
         # 1. pdf of the joint is the product of the pdfs
         # 2. log of the product is the sum of the logs
-        log_pi = Normal(mu, self.std).log_prob(l_t)
+
+        # normal
+        #log_pi = Normal(mu, self.std).log_prob(l_t)
+        #log_pi = torch.sum(log_pi, dim=1)
+
+        # stable distribution
+        import pdb; pdb.set_trace()
+        log_pi = levy_stable.logpdf(mu, self.alpha, 0, loc=0, scale=self.gamma)
         log_pi = torch.sum(log_pi, dim=1)
 
         if last:
