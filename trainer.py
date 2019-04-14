@@ -46,7 +46,7 @@ class Trainer(object):
 
         # core network params
         self.num_glimpses = config.num_glimpses
-        self.hidden_size = config.hidden_size
+        self.hidden_size = config.loc_hidden + config.glimpse_hidden
 
         # reinforce params
         self.std = config.std

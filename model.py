@@ -4,7 +4,8 @@ import torch
 import torch.nn as nn
 
 from torch.distributions import Normal
-from scipy.stats.levy_stable import levy_stable
+from torch.distributions import Cauchy
+from scipy.stats import levy_stable
 
 from modules import baseline_network
 from modules import glimpse_network, core_network
@@ -120,8 +121,10 @@ class RecurrentAttention(nn.Module):
         #log_pi = torch.sum(log_pi, dim=1)
 
         # stable distribution
-        import pdb; pdb.set_trace()
-        log_pi = levy_stable.logpdf(mu, self.alpha, 0, loc=0, scale=self.gamma)
+        #import pdb; pdb.set_trace()
+        #log_pi = levy_stable.logpdf(mu.cpu().detach().numpy(), self.alpha, 0, loc = 0, scale = self.gamma)
+        #log_pi = torch.sum(torch.tensor(log_pi, dtype = torch.float32, device = mu.device, requires_grad = True), dim=1)
+        log_pi = Cauchy(loc = 0, scale = self.gamma).log_prob(l_t)
         log_pi = torch.sum(log_pi, dim=1)
 
         if last:
