@@ -4,7 +4,9 @@ import torch
 import torch.nn as nn
 
 from torch.distributions import Normal
-from torch.distributions import Cauchy
+from torch.distributions import Uniform
+from torch.distributions import Exponential
+
 from scipy.stats import levy_stable
 
 from modules import baseline_network
@@ -121,9 +123,21 @@ class RecurrentAttention(nn.Module):
         #log_pi = torch.sum(log_pi, dim=1)
 
         # stable distribution
-        #import pdb; pdb.set_trace()
-        #log_pi = levy_stable.logpdf(mu.cpu().detach().numpy(), self.alpha, 0, loc = 0, scale = self.gamma)
+        # use scipy, too slow
+        #log_pi = levy_stable.logpdf(mu.cpu().detach().numpy(), self.alpha, 0, loc = 0, scale = self.gamma) # this is too slow for gpu
         #log_pi = torch.sum(torch.tensor(log_pi, dtype = torch.float32, device = mu.device, requires_grad = True), dim=1)
+        
+        # use CMS method to simulate random variable sampled form stalbe distribution; it is a random variable not a pdf
+        # zeta = 0 # self.beta * torch.tan(pi * self.alpha / 2)
+        # epson = (1 / self.alpha) * torch.atan(-zeta)
+        # U = Uniform(-math.pi/2,math.pi/2)
+        # E = Exponential(1)
+        # X = ((1 + zeta**2)**(1/2/self.alpha)) * torch.sin(self.alpha * (U + epson)) / (torch.cos(U)**(1/self.alpha)) * (torch.cos(U - self.alpha * (U + epson)) / E)**((1 - self.alpha)/self.alpha)
+        # Y = self.gamma * X;
+        # log_pi = torch.log(Y)
+        # log_pi = torch.sum(log_pi, dim=1)
+
+        # use cauchy to temporally replace it
         log_pi = Cauchy(loc = 0, scale = self.gamma).log_prob(l_t)
         log_pi = torch.sum(log_pi, dim=1)
 
