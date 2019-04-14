@@ -6,6 +6,7 @@ import torch.nn as nn
 from torch.distributions import Normal
 from torch.distributions import Uniform
 from torch.distributions import Exponential
+from torch.distributions import Cauchy
 
 from scipy.stats import levy_stable
 
