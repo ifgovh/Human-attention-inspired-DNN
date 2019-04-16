@@ -139,7 +139,7 @@ class RecurrentAttention(nn.Module):
         # log_pi = torch.sum(log_pi, dim=1)
 
         # use cauchy to temporally replace it
-        log_pi = Cauchy(loc = 0, scale = self.gamma).log_prob(l_t)
+        log_pi = Cauchy(loc = mu, scale = self.gamma).log_prob(l_t)
         log_pi = torch.sum(log_pi, dim=1)
 
         if last:
