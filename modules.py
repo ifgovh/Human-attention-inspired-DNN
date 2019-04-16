@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from torch.autograd import Variable
+from scipy.stats import levy_stable
 
 import numpy as np
 
@@ -338,9 +339,11 @@ class location_network(nn.Module):
     - mu: a 2D vector of shape (B, 2).
     - l_t: a 2D vector of shape (B, 2).
     """
-    def __init__(self, input_size, output_size, std):
+    def __init__(self, input_size, output_size, std, alpha, beta):
         super(location_network, self).__init__()
         self.std = std
+        self.alpha = alpha
+        self.beta = beta
         self.fc = nn.Linear(input_size, output_size)
 
     def forward(self, h_t, l_t_prev):
@@ -348,9 +351,11 @@ class location_network(nn.Module):
         mu = torch.tanh(self.fc(h_t.detach()))
         
         # reparametrization trick
-        noise = torch.zeros_like(mu)
-        noise.data.normal_(std=self.std)
-        l_t = mu + noise + l_t_prev # previous: l_t = mu + noise, now I change the mu + noise as the delta_x
+        # noise = torch.zeros_like(mu)
+        # noise.data.normal_(std=self.std)
+
+        noise = torch.from_numpy(np.reshape(levy_stable.rvs(self.alpha, self.beta, size=2*mu.shape[0]).astype(np.float32), mu.shape))
+        l_t = noise + torch.zeros_like(mu) + l_t_prev # previous: l_t = mu + noise, now I change the mu + noise as the delta_x
 
         # bound between [-1, 1]
         l_t = torch.tanh(l_t)

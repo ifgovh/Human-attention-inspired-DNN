@@ -22,6 +22,7 @@ source tf/bin/activate
 cd "$PBS_O_WORKDIR"
 params=`sed "${PBS_ARRAY_INDEX}q;d" job_params_gpu`
 param_array=( $params )
+
 python3 main.py --patch_size=13 --num_patches=1 --loc_hidden=256 --glimpse_hidden=128 --num_glimpses=10 --valid_size=0.1 --batch_size=256 --batchnorm_flag_phi=True --batchnorm_flag_l=True --batchnorm_flag_g=True --batchnorm_flag_h=True --glimpse_scale=1 --weight_decay=0.002 --dropout_phi=0.2 --dropout_l=0.3 --dropout_g=0.2 --dropout_h=0.3 --use_gpu=True --dataset_name='CIFAR' --train_patience=200
 
 python3 main.py --patch_size=13 --num_patches=2 --loc_hidden=256 --glimpse_hidden=128 --num_glimpses=10 --valid_size=0.1 --batch_size=256 --batchnorm_flag_phi=True --batchnorm_flag_l=True --batchnorm_flag_g=True --batchnorm_flag_h=True --glimpse_scale=1 --weight_decay=0.002 --dropout_phi=0.2 --dropout_l=0.3 --dropout_g=0.2 --dropout_h=0.3 --use_gpu=True --dataset_name='CIFAR' --train_patience=200

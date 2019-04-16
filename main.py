@@ -18,6 +18,7 @@ def main(config):
         torch.cuda.manual_seed(config.random_seed)
         kwargs = {'num_workers': 1, 'pin_memory': True}
 
+    print(config.dataset_name)
     # instantiate data loaders
     if config.is_train:
         data_loader = get_train_valid_loader(
