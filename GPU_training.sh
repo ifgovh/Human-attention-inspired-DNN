@@ -8,14 +8,14 @@
 #PBS -o PBSout_GPU/
 ##PBS -J 1-8
 
+module load python/3.6.5
+module load cuda/9.1.85 openmpi-gcc/3.0.0-cuda
+
 # make sure you have built a virtual system on python 3.6.5 
 # and install pytorch just like how you install tensorflow on HPC:
 # 	virtualenv --system-site-packages tf #tf is in your home directory
 #	module load cuda/9.1.85 openmpi-gcc/3.0.0-cuda
 #	pip install /usr/local/pytorch/torch-1.0.0a0+1a247f8.magma.cuda.9.1-cp36-cp36m-linux_x86_64.whl
-
-module load python/3.6.5
-module load cuda/9.1.85 openmpi-gcc/3.0.0-cuda
 
 cd ~
 source tf/bin/activate
