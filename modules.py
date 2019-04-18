@@ -338,9 +338,10 @@ class location_network(nn.Module):
     - mu: a 2D vector of shape (B, 2).
     - l_t: a 2D vector of shape (B, 2).
     """
-    def __init__(self, input_size, output_size, std):
+    def __init__(self, input_size, output_size, config):
         super(location_network, self).__init__()
-        self.std = std
+        self.std = config.std
+        self.gamma = config.gamma # for stable distribution (temporally use Cauchy)
         self.fc = nn.Linear(input_size, output_size)
 
     def forward(self, h_t, l_t_prev):
@@ -349,7 +350,8 @@ class location_network(nn.Module):
         
         # reparametrization trick
         noise = torch.zeros_like(mu)
-        noise.data.normal_(std=self.std)
+        # noise.data.normal_(std=self.std)
+        noise.data.cauchy_(sigma=self.gamma)
         l_t = mu + noise + l_t_prev # previous: l_t = mu + noise, now I change the mu + noise as the delta_x
 
         # bound between [-1, 1]
