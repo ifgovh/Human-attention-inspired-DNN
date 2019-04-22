@@ -210,7 +210,7 @@ def find_super_params():
 	instrum = inst.Instrumentation(patch_size,  num_patches, 256, 128, 10,
 		0.17, 10, 0.1, 256, 'True', 'True', 'True', 'True', 
 		2, 0.002, 0.1,  
-		0.3, 0.2, dropout_h, 1.4, 1.8)
+		0.3, 0.2, dropout_h, 1.4, gamma)
 
 	print(instrum.dimension)  
 
