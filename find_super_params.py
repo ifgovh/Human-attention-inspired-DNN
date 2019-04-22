@@ -170,8 +170,8 @@ def find_super_params():
 	Use ScrHammersleySearchPlusMiddlePoint (PlusMiddlePoint only if you have continuous parameters or good default values for discrete parameters).
 	"""
 	# dicrete
-	patch_size = inst.var.SoftmaxCategorical(np.arange(5,15).tolist()) 
-	num_patches = inst.var.SoftmaxCategorical(np.arange(1,3).tolist()) 
+	patch_size = inst.var.SoftmaxCategorical([6,10]) 
+	num_patches = inst.var.SoftmaxCategorical(np.arange(5,16).tolist()) 
 	# num_glimpses = inst.var.SoftmaxCategorical([5,10,12])#(np.arange(5,15).tolist())
 	# glimpse_hidden = inst.var.SoftmaxCategorical(np.arange(128,5)) 
 	# loc_hidden = inst.var.SoftmaxCategorical(np.arange(192,15))
@@ -181,15 +181,15 @@ def find_super_params():
 	# batchnorm_g = inst.var.SoftmaxCategorical(["True", "False"])
 	# batchnorm_h = inst.var.SoftmaxCategorical(["True", "False"])
 
-	glimpse_scale = inst.var.SoftmaxCategorical(np.arange(1,3,1).tolist())
+	# glimpse_scale = inst.var.SoftmaxCategorical(np.arange(1,3,1).tolist())
 	# weight_decay = inst.var.SoftmaxCategorical(np.arange(0.0001,0.05,0.0005).tolist())
-	dropout_phi = inst.var.SoftmaxCategorical(np.arange(0.1,0.3,0.1).tolist())
-	dropout_l = inst.var.SoftmaxCategorical(np.arange(0,0.4,0.1).tolist())
+	# dropout_phi = inst.var.SoftmaxCategorical(np.arange(0.1,0.3,0.1).tolist())
+	# dropout_l = inst.var.SoftmaxCategorical(np.arange(0,0.4,0.1).tolist())
 	#dropout_g = inst.var.SoftmaxCategorical(np.arange(0,0.5,0.1).tolist())
-	dropout_h = inst.var.SoftmaxCategorical(np.arange(0,0.4,0.1).tolist())
+	dropout_h = inst.var.SoftmaxCategorical(np.arange(0.2,0.4,0.1).tolist())
 	
 	# alpha = inst.var.SoftmaxCategorical(np.arange(1,2,0.1).tolist())
-	gamma = inst.var.SoftmaxCategorical(np.arange(0,2,0.3).tolist()) 
+	gamma = inst.var.SoftmaxCategorical(np.arange(0.1,2,0.1).tolist()) 
 
 	# continuous; the Gaussian method does not have truncated version, so it is unavailable
 	# glimpse_scale = inst.var.Gaussian(mean=2, std=2)  
@@ -209,8 +209,8 @@ def find_super_params():
 	# if it is constant, only give the constant
 	instrum = inst.Instrumentation(patch_size,  num_patches, 256, 128, 10,
 		0.17, 10, 0.1, 256, 'True', 'True', 'True', 'True', 
-		glimpse_scale, 0.002, dropout_phi,  
-		dropout_l, 0.2, dropout_h, 1.4, gamma)
+		2, 0.002, 0.1,  
+		0.3, 0.2, dropout_h, 1.4, 1.8)
 
 	print(instrum.dimension)  
 
