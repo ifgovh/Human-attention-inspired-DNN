@@ -133,6 +133,13 @@ misc_arg.add_argument('--plot_freq', type=int, default=1,
 misc_arg.add_argument('--PBSarray_ID', type=int, default=1,
                       help='PBSarray_ID')
 
+# levy-stable dist params
+location_arg = add_argument_group('levy-stable params')
+location_arg.add_argument('--alpha_levy', type=float, default=1.45,
+                           help='alpha-beta stable distribution parameter')
+location_arg.add_argument('--beta_levy', type=float, default=0,
+                           help='alpha-beta stable distribution parameter')
+
 def get_config():
     config, unparsed = parser.parse_known_args()
     return config, unparsed

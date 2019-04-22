@@ -354,6 +354,8 @@ class location_network(nn.Module):
         # noise = torch.zeros_like(mu)
         # noise.data.normal_(std=self.std)
 
+        print(self.alpha, self.beta)
+
         noise = torch.from_numpy(np.reshape(levy_stable.rvs(self.alpha, self.beta, size=2*mu.shape[0]).astype(np.float32), mu.shape))
         l_t = noise + torch.zeros_like(mu) + l_t_prev # previous: l_t = mu + noise, now I change the mu + noise as the delta_x
 

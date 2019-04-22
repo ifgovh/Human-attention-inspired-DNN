@@ -67,10 +67,12 @@ class RecurrentAttention(nn.Module):
         self.alpha = config.alpha 
         self.gamma = config.gamma
 
+        self.alpha_levy = config.alpha_levy
+        self.beta_levy = config.beta_levy
 
         self.sensor = glimpse_network(h_g, h_l, g, k, s, c, config)
         self.rnn = core_network(hidden_size, hidden_size, config)
-        self.locator = location_network(hidden_size, 2, std, 1.45, 0)  # TODO add parameters in config
+        self.locator = location_network(hidden_size, 2, std, self.alpha_levy, self.beta_levy)  # TODO add parameters in config
         self.classifier = action_network(hidden_size, num_classes)
         self.baseliner = baseline_network(hidden_size, 1)
 

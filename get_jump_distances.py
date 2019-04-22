@@ -27,7 +27,7 @@ def jump_distances(points):
             jumps.append(euclid(set[i], set[i+1]))
     return jumps
 
-path = "plots/3145433_ram_1_10_13x13_1.00_1_True_True_True_True_0.00200_0.2_0.3_0.2_0.3"
+path = "plots/artemis_data"
 data = load_data(path)
 jumps = jump_distances(data)
 
