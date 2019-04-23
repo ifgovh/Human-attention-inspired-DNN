@@ -171,8 +171,8 @@ def find_super_params():
 	"""
 	# dicrete
 	patch_size = inst.var.SoftmaxCategorical([6,10]) 
-	num_patches = inst.var.SoftmaxCategorical(np.arange(5,16).tolist()) 
-	# num_glimpses = inst.var.SoftmaxCategorical([5,10,12])#(np.arange(5,15).tolist())
+	num_patches = inst.var.SoftmaxCategorical(np.arange(1,3).tolist()) 
+	num_glimpses = inst.var.SoftmaxCategorical((np.arange(5,15).tolist())
 	# glimpse_hidden = inst.var.SoftmaxCategorical(np.arange(128,5)) 
 	# loc_hidden = inst.var.SoftmaxCategorical(np.arange(192,15))
 
@@ -186,7 +186,7 @@ def find_super_params():
 	# dropout_phi = inst.var.SoftmaxCategorical(np.arange(0.1,0.3,0.1).tolist())
 	# dropout_l = inst.var.SoftmaxCategorical(np.arange(0,0.4,0.1).tolist())
 	#dropout_g = inst.var.SoftmaxCategorical(np.arange(0,0.5,0.1).tolist())
-	dropout_h = inst.var.SoftmaxCategorical(np.arange(0.2,0.4,0.1).tolist())
+	dropout_h = inst.var.SoftmaxCategorical([0,0.3])
 	
 	# alpha = inst.var.SoftmaxCategorical(np.arange(1,2,0.1).tolist())
 	gamma = inst.var.SoftmaxCategorical(np.arange(0.1,2,0.1).tolist()) 
@@ -207,7 +207,7 @@ def find_super_params():
 	# create the instrumented function
 	# put them in order, if it is discrete varible, only give the variable name; if it is continuous, give a pair;
 	# if it is constant, only give the constant
-	instrum = inst.Instrumentation(patch_size,  num_patches, 256, 128, 10,
+	instrum = inst.Instrumentation(patch_size, num_patches, 256, 128, num_glimpses,
 		0.17, 10, 0.1, 256, 'True', 'True', 'True', 'True', 
 		2, 0.002, 0.1,  
 		0.3, 0.2, dropout_h, 1.4, gamma)
@@ -228,7 +228,7 @@ def find_super_params():
 	# you can still access the instrumentation instance will ifunc.instrumentation
 
 	optimizer = optimizerlib.PortfolioDiscreteOnePlusOne(dimension=ifunc.dimension, 
-		budget=50, num_workers=4) #TwoPointsDE
+		budget=80, num_workers=2) #TwoPointsDE
 	# simple example
 	#recommendation = optimizer.optimize(ifunc)
 	# using several workers
