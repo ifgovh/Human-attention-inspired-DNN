@@ -170,9 +170,9 @@ def find_super_params():
 	Use ScrHammersleySearchPlusMiddlePoint (PlusMiddlePoint only if you have continuous parameters or good default values for discrete parameters).
 	"""
 	# dicrete
-	patch_size = inst.var.SoftmaxCategorical([6,10]) 
+	patch_size = inst.var.SoftmaxCategorical([6,8,10]) 
 	num_patches = inst.var.SoftmaxCategorical(np.arange(1,3).tolist()) 
-	num_glimpses = inst.var.SoftmaxCategorical((np.arange(5,15).tolist())
+	num_glimpses = inst.var.SoftmaxCategorical(np.arange(5,15).tolist())
 	# glimpse_hidden = inst.var.SoftmaxCategorical(np.arange(128,5)) 
 	# loc_hidden = inst.var.SoftmaxCategorical(np.arange(192,15))
 
@@ -228,7 +228,7 @@ def find_super_params():
 	# you can still access the instrumentation instance will ifunc.instrumentation
 
 	optimizer = optimizerlib.PortfolioDiscreteOnePlusOne(dimension=ifunc.dimension, 
-		budget=80, num_workers=2) #TwoPointsDE
+		budget=80, num_workers=4) #TwoPointsDE
 	# simple example
 	#recommendation = optimizer.optimize(ifunc)
 	# using several workers
