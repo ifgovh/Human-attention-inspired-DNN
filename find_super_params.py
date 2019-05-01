@@ -228,7 +228,7 @@ def find_super_params():
 	# you can still access the instrumentation instance will ifunc.instrumentation
 
 	optimizer = optimizerlib.PortfolioDiscreteOnePlusOne(dimension=ifunc.dimension, 
-		budget=80, num_workers=4) #TwoPointsDE
+		budget=50, num_workers=2) #TwoPointsDE
 	# simple example
 	#recommendation = optimizer.optimize(ifunc)
 	# using several workers
