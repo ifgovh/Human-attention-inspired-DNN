@@ -107,7 +107,7 @@ train_arg.add_argument('--batchnorm_flag_l', type=str2bool, default=False,
 train_arg.add_argument('--batchnorm_flag_g', type=str2bool, default=False,
                        help='Whether to add batchnorm layer on g the combination of what and where')
 train_arg.add_argument('--batchnorm_flag_h', type=str2bool, default=False,
-                       help='Whether to add batchnorm layer on hidden layer')
+                       help='Whether to add batchnorm layer on hidden layer')# not available in built-in rnn
 
 
 # other params
