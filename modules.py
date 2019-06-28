@@ -292,12 +292,14 @@ class core_network(nn.Module):
                              options are ['LSTM', 'RNN' ]""")            
         
     def forward(self, g_t, h_t_prev):
-        if self.rnn_type == 'RNN'
+        if self.rnn_type == 'RNN':
             _,h_t = self.rnn(g_t,h_t_prev)
-        elif self.rnn_type == 'LSTM'
+        elif self.rnn_type == 'LSTM':
             _,h_t,_ = self.rnn(g_t,h_t_prev)
+        else:
+            raise ValueError("""Wrong type of RNN!""")
 
-        return torch.squeeze(h_t)
+        return h_t
 
 class action_network(nn.Module):
     """
