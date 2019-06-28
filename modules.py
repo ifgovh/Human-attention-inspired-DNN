@@ -242,6 +242,8 @@ class core_network(nn.Module):
     -------
     - h_t: a 2D tensor of shape (B, hidden_size). The hidden
       state vector for the current timestep `t`.
+
+      In new version, h_t and h_t_prev are 3D tensors of shape (num_layers * num_directions, batch, hidden_size)
     """
 
     # original version
@@ -373,7 +375,7 @@ class location_network(nn.Module):
 
     def forward(self, h_t, l_t_prev):
         # compute mean
-        mu = torch.tanh(self.fc(h_t.detach()))
+        mu = torch.tanh(self.fc(torch.squeeze(h_t.detach())))
         
         # reparametrization trick
         noise = torch.zeros_like(mu)
@@ -409,6 +411,6 @@ class baseline_network(nn.Module):
         self.fc = nn.Linear(input_size, output_size)
 
     def forward(self, h_t):
-        b_t = F.relu(self.fc(h_t.detach()))
+        b_t = F.relu(self.fc(torch.squeeze(h_t.detach())))
         
         return b_t
