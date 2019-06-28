@@ -243,6 +243,9 @@ class core_network(nn.Module):
     - h_t: a 2D tensor of shape (B, hidden_size). The hidden
       state vector for the current timestep `t`.
     """
+
+    # original version
+    """
     def __init__(self, input_size, hidden_size, config):
         super(core_network, self).__init__()
         self.input_size = input_size
@@ -272,7 +275,29 @@ class core_network(nn.Module):
         h_t = self.dropout_h(h_t)
 
         return h_t
+   """
+    # new version
+    def __init__(self, input_size, hidden_size, config):
+        super(core_network, self).__init__()
+        self.input_size = input_size
+        self.hidden_size = hidden_size        
+        self.dropout_h = config.dropout_h
+        self.rnn_type = config.rnn_type
+        self.num_layers = 1 
+        
+        if self.rnn_type in ['LSTM', 'RNN']:
+            self.rnn = getattr(nn, config.rnn_type)(input_size=input_size, hidden_size=hidden_size, num_layers=self.num_layers, dropout=self.dropout_h)
+        else:            
+            raise ValueError( """An invalid option for `--model` was supplied,
+                             options are ['LSTM', 'RNN' ]""")            
+        
+    def forward(self, g_t, h_t_prev):
+        if self.rnn_type == 'RNN'
+            _,h_t = self.rnn(g_t,h_t_prev)
+        elif self.rnn_type == 'LSTM'
+            _,h_t,_ = self.rnn(g_t,h_t_prev)
 
+        return torch.squeeze(h_t)
 
 class action_network(nn.Module):
     """
