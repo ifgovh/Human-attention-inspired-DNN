@@ -242,8 +242,6 @@ class core_network(nn.Module):
     -------
     - h_t: a 2D tensor of shape (B, hidden_size). The hidden
       state vector for the current timestep `t`.
-
-      In new version, h_t and h_t_prev are 3D tensors of shape (num_layers * num_directions, batch, hidden_size)
     """
 
     # original version
@@ -284,22 +282,19 @@ class core_network(nn.Module):
         self.input_size = input_size
         self.hidden_size = hidden_size        
         self.dropout_h = config.dropout_h
-        self.rnn_type = config.rnn_type
-        self.num_layers = 1 
-        
-        if self.rnn_type in ['LSTM', 'RNN']:
-            self.rnn = getattr(nn, config.rnn_type)(input_size=input_size, hidden_size=hidden_size, num_layers=self.num_layers, dropout=self.dropout_h)
+        self.rnn_type = config.rnn_type                
+
+        if self.rnn_type in ['LSTMCell', 'RNNCell']:
+            self.rnn = getattr(nn, config.rnn_type)(input_size=input_size, hidden_size=hidden_size)
         else:            
             raise ValueError( """An invalid option for `--model` was supplied,
-                             options are ['LSTM', 'RNN' ]""")            
+                             options are ['LSTMCell', 'RNNCell' ]""")            
         
     def forward(self, g_t, h_t_prev):
-        if self.rnn_type == 'RNN':
-            _,h_t = self.rnn(g_t,h_t_prev)
-        elif self.rnn_type == 'LSTM':
-            _,h_t,_ = self.rnn(g_t,h_t_prev)
-        else:
-            raise ValueError("""Wrong type of RNN!""")
+        if self.rnn_type == 'RNNCell'
+            h_t = self.rnn(g_t,h_t_prev)
+        elif self.rnn_type == 'LSTMCell'
+            h_t,_ = self.rnn(g_t,h_t_prev)
 
         return h_t
 
@@ -375,7 +370,7 @@ class location_network(nn.Module):
 
     def forward(self, h_t, l_t_prev):
         # compute mean
-        mu = torch.tanh(self.fc(torch.squeeze(h_t.detach())))
+        mu = torch.tanh(self.fc(h_t.detach()))
         
         # reparametrization trick
         noise = torch.zeros_like(mu)
@@ -411,6 +406,6 @@ class baseline_network(nn.Module):
         self.fc = nn.Linear(input_size, output_size)
 
     def forward(self, h_t):
-        b_t = F.relu(self.fc(torch.squeeze(h_t.detach())))
+        b_t = F.relu(self.fc(h_t.detach()))
         
         return b_t
