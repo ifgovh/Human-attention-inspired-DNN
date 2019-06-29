@@ -291,9 +291,9 @@ class core_network(nn.Module):
                              options are ['LSTMCell', 'RNNCell' ]""")            
         
     def forward(self, g_t, h_t_prev):
-        if self.rnn_type == 'RNNCell'
+        if self.rnn_type == 'RNNCell':
             h_t = self.rnn(g_t,h_t_prev)
-        elif self.rnn_type == 'LSTMCell'
+        elif self.rnn_type == 'LSTMCell':
             h_t,_ = self.rnn(g_t,h_t_prev)
 
         return h_t

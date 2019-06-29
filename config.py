@@ -34,8 +34,8 @@ core_arg.add_argument('--num_glimpses', type=int, default=6,
                       help='# of glimpses, i.e. BPTT iterations')
 core_arg.add_argument('--hidden_size', type=int, default=256,
                       help='hidden size of rnn')
-core_arg.add_argument('--rnn_type', type=str, default='RNN',
-                      help='type of rnn, RNN or LSTM')
+core_arg.add_argument('--rnn_type', type=str, default='RNNCell',
+                      help='type of rnn, RNNCell or LSTMCell')
 
 
 # reinforce params
