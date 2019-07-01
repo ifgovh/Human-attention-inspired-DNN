@@ -84,7 +84,7 @@ class retina(object):
         -------
         - patch: a 4D Tensor of shape (B, size, size, C)
         """
-        B, C, H, W = x.shape                
+        B, C, H, W = x.shape
         # calculate coordinate for each batch samle (padding considered)
         from_x, from_y = l[:, 0], l[:, 1]
         # normalize size

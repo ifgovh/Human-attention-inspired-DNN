@@ -56,7 +56,7 @@ class Trainer(object):
         if config.is_train:
             self.train_loader = data_loader[0]
             self.valid_loader = data_loader[1]
-            if config.dataset_name == 'MNIST' or config.dataset_name == 'CIFAR':
+            if 'MNIST' in config.dataset_name or config.dataset_name == 'CIFAR':
                 self.num_train = len(self.train_loader.sampler.indices)
                 self.num_valid = len(self.valid_loader.sampler.indices)
             elif config.dataset_name == 'ImageNet':
@@ -68,7 +68,7 @@ class Trainer(object):
             self.num_test = len(self.test_loader.dataset)        
                 
         # assign numer of channels and classes of images in this dataset, maybe there is more robust way
-        if config.dataset_name == 'MNIST':
+        if 'MNIST' in config.dataset_name:
             self.num_channels = 1
             self.num_classes = 10
         elif config.dataset_name == 'ImageNet':

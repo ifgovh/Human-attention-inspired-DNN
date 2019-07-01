@@ -8,8 +8,6 @@ from torchvision import transforms
 from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data.dataset import Dataset
 
-import matplotlib
-import matplotlib.pyplot as plt
 
 class cluttered_MNIST(Dataset):
     # clutered MNIST
@@ -17,10 +15,7 @@ class cluttered_MNIST(Dataset):
         # define transforms for MNIST
         normalize = transforms.Normalize((0.1307,), (0.3081,))
         resize = transforms.Resize(patch_size)
-        self.trans = transforms.Compose([resize, normalize])
-
-        # tranfer cluttered image to tensor
-        self.to_tensor = transforms.ToTensor()
+        self.trans = transforms.Compose([resize, normalize])        
 
         # get raw data from pytorch built-in fun
         self.raw_dataset = datasets.MNIST(
@@ -41,8 +36,8 @@ class cluttered_MNIST(Dataset):
         - cluttered_img: an 2D tensor and corresponding label
         """
         # this is the way to access the dataset, the output is a tuple (PIL image and tensor Label)
-        height_img = 8
-        width_img = 8
+        height_img = 16
+        width_img = 16
 
         original_img = self.raw_dataset.__getitem__(index)[0].resize((width_img,height_img))
         original_img = np.array(original_img)
@@ -71,15 +66,19 @@ class cluttered_MNIST(Dataset):
             # plt.figure()
             # plt.imshow(digit)
             # plt.show() 
-            c1, c2  = np.random.randint(0, width - width_img/4, size=2)
-            i1, i2  = np.random.randint(0, height - height_img/4, size=2)
-            cluttered_img[i2:int(i2+height_img/4), i1:int(i1+width_img/4)] = digit[c2:int(c2+height_img/4), c1:int(c1+width_img/4)]
+            c1  = np.random.randint(0, width - width_img/4 -1)
+            c2  = np.random.randint(0, width_img - width_img/4 -1)
+            i1  = np.random.randint(0, height - height_img/4 -1)
+            i2  = np.random.randint(0, height_img - height_img/4 -1)
+            cluttered_img[i1:int(i1+height_img/4), c1:int(c1+width_img/4)] = digit[i2:int(i2+height_img/4), c2:int(c2+width_img/4)]
 
-        cluttered_img = np.clip(cluttered_img, 0., 1.)
-                
-
+        cluttered_img = np.clip(cluttered_img, 0., 1.)        
+        cluttered_img = np.expand_dims(cluttered_img, 0) # add channel axis for channel    
+        cluttered_img = torch.tensor(cluttered_img)
+        cluttered_img = cluttered_img.float() # to be consistent with MNIST
+        transforms.functional.normalize(cluttered_img, (0.1307,), (0.3081,))
         # returen image and label
-        return (self.to_tensor(cluttered_img), self.raw_dataset.__getitem__(index)[1])
+        return (cluttered_img, self.raw_dataset.__getitem__(index)[1])
 
     def __len__(self):
         return self.raw_dataset.__len__() # of how many data(images?) you have
@@ -266,7 +265,6 @@ def get_train_valid_loader(data_dir,
         X = images.numpy()
         X = np.transpose(X, [0, 2, 3, 1])
         plot_images(X, labels)
-    import pdb; pdb.set_trace()
     return (train_loader, valid_loader)
 
 
