@@ -14,11 +14,13 @@ def parse_arguments():
                      help="path to directory containing pickle dumps")
     arg.add_argument("--epoch", type=int, required=True,
                      help="epoch of desired plot")
+    arg.add_argument("--size", type=int, required=True,
+                     help="the size of glimpse")
     args = vars(arg.parse_args())
-    return args['plot_dir'], args['epoch']
+    return args['plot_dir'], args['epoch'], args['size']
 
 
-def main(plot_dir, epoch):
+def main(plot_dir, epoch, size):
 
     # read in pickle files
     glimpses = pickle.load(
@@ -31,7 +33,7 @@ def main(plot_dir, epoch):
     glimpses = np.concatenate(glimpses)
 
     # grab useful params
-    size = int(plot_dir.split('_')[2][0])
+    #size = int(plot_dir.split('_')[2][0])
     num_anims = len(locations)
     num_cols = glimpses.shape[0]
     img_shape = glimpses.shape[1]
