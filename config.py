@@ -65,7 +65,7 @@ data_arg.add_argument('--shuffle', type=str2bool, default=True,
 data_arg.add_argument('--show_sample', type=str2bool, default=False,
                       help='Whether to visualize a sample grid of the data')
 data_arg.add_argument('--dataset_name', type=str, default='MNIST',
-                      help='Load which dataset')
+                      help='Load which dataset, MNIST, cluttered_MNIST, ImageNet, CIFAR')
 
 
 # training params
