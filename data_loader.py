@@ -8,6 +8,9 @@ from torchvision import transforms
 from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data.dataset import Dataset
 
+import matplotlib
+import matplotlib.pyplot as plt
+
 class cluttered_MNIST(Dataset):
     # clutered MNIST
     def __init__(self, data_dir, patch_size=8):                
@@ -20,43 +23,39 @@ class cluttered_MNIST(Dataset):
         self.to_tensor = transforms.ToTensor()
 
         # get raw data from pytorch built-in fun
-        self.dataset = datasets.MNIST(
-            data_dir, train=True, download=True, transform=self.trans
+        self.raw_dataset = datasets.MNIST(
+            data_dir, train=True, download=True, transform=None
             )        
 
-    def __getitem__(self, index):
-        # this is the way to access the dataset, the output is a tuple (PIL image and tensor Label)        
-        image = clutter(self.dataset.__getitem__(index)[0],self.dataset)
-
-        # returen image and label
-        return (img, self.dataset.__getitem__(index)[1])
-
-    def __len__(self):
-        return len(self.dataset.__len__()) # of how many data(images?) you have
-
-    def clutter(original_img, train_data, width=60, height=60, n_patches=4):
+    def __getitem__(self, index): 
         """
         Inserts MNIST digits at random locations in larger blank background and
         adds 8 by 8 subpatches from other random MNIST digits.
 
         Args
         ----
-        - original_img: a PIL image
-        - train_data: the out put of dataset.MNIST.
-        - width: the width of output data.
-        - height: the height of output data.
-        - n_patches: the number of random subpatches
+        - index: the index of getting item
 
         Returns
         -------   
-        - cluttered_img: an 2D tensor
+        - cluttered_img: an 2D tensor and corresponding label
         """
-        original_img = np.array(original_img)
-        width_img = 8
+        # this is the way to access the dataset, the output is a tuple (PIL image and tensor Label)
         height_img = 8
+        width_img = 8
+
+        original_img = self.raw_dataset.__getitem__(index)[0].resize((width_img,height_img))
+        original_img = np.array(original_img)
+
+        # the width of output data.
+        width = 60
+        # the height of output data.
+        height = 60
+        # the number of random subpatches
+        n_patches = 4
 
         # blank background for each image 
-        cluttered_img = np.zeros(height,width) 
+        cluttered_img = np.zeros([height,width]) 
 
         # sample location
         x_pos   = np.random.randint(0,width - width_img)
@@ -65,16 +64,26 @@ class cluttered_MNIST(Dataset):
         # insert in blank image
         cluttered_img[y_pos:y_pos+height_img, x_pos:x_pos+width_img] += original_img
 
-        # add 8 x 8 subpatches from random other digits
+        # add 8 x 8 subpatches from random other digits        
         for i in range(n_patches):
-            digit   = np.array(train_data.__getitem__(np.random.randint(0, train_data.shape[0]-1))[0]);
-            c1, c2  = np.random.randint(0, width_img - width_sub, size=2)
-            i1, i2  = np.random.randint(0, width - width_sub, size=2)
-            cluttered_img[i2:i2+height_sub, i1:i1+width_sub] += digit[0, 0, c2:c2+height_sub, c1:c1+width_sub]
+            rnd = np.random.randint(0, len(self.raw_dataset)-1) 
+            digit   = np.array(self.raw_dataset.__getitem__(rnd)[0])
+            # plt.figure()
+            # plt.imshow(digit)
+            # plt.show() 
+            c1, c2  = np.random.randint(0, width - width_img/4, size=2)
+            i1, i2  = np.random.randint(0, height - height_img/4, size=2)
+            cluttered_img[i2:int(i2+height_img/4), i1:int(i1+width_img/4)] = digit[c2:int(c2+height_img/4), c1:int(c1+width_img/4)]
 
         cluttered_img = np.clip(cluttered_img, 0., 1.)
+                
 
-        return self.to_tensor(cluttered_img)
+        # returen image and label
+        return (self.to_tensor(cluttered_img), self.raw_dataset.__getitem__(index)[1])
+
+    def __len__(self):
+        return self.raw_dataset.__len__() # of how many data(images?) you have
+    
 
 
 def get_train_valid_loader(data_dir,
@@ -248,7 +257,7 @@ def get_train_valid_loader(data_dir,
     # visualize some images
     if show_sample:
         sample_loader = torch.utils.data.DataLoader(
-            dataset = dataset if dataset_name == 'MNIST' else train_dataset, 
+            dataset = dataset if dataset_name == 'cluttered_MNIST' else train_dataset, 
             batch_size=9, shuffle=shuffle,
             num_workers=num_workers, pin_memory=pin_memory
         )
@@ -257,7 +266,7 @@ def get_train_valid_loader(data_dir,
         X = images.numpy()
         X = np.transpose(X, [0, 2, 3, 1])
         plot_images(X, labels)
-
+    import pdb; pdb.set_trace()
     return (train_loader, valid_loader)
 
 
