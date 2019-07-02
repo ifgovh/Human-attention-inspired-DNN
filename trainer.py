@@ -196,7 +196,12 @@ class Trainer(object):
         l_t = torch.Tensor(self.batch_size, 2).uniform_(-1, 1)
         l_t = Variable(l_t).type(dtype)
 
-        return h_t, l_t
+        if self.rnn_type == 'RNNCell':
+            return h_t, l_t
+        elif self.rnn_type == 'LSTMCell':
+            cell_state = torch.zeros(self.batch_size, self.hidden_size)
+            cell_state = Variable(cell_state).type(dtype)
+            return h_t, l_t, cell_state
 
     def train(self):
         """
@@ -288,7 +293,7 @@ class Trainer(object):
 
                 # initialize location vector and hidden state
                 self.batch_size = x.shape[0]
-                h_t, l_t = self.reset()
+                h_t, l_t, cell_state = self.reset()
 
                 # save images
                 imgs = []
@@ -431,7 +436,7 @@ class Trainer(object):
 
             # initialize location vector and hidden state
             self.batch_size = x.shape[0]
-            h_t, l_t = self.reset()
+            h_t, l_t, cell_state = self.reset()
 
             # extract the glimpses
             log_pi = []
@@ -559,7 +564,7 @@ class Trainer(object):
 
             # initialize location vector and hidden state
             self.batch_size = x.shape[0]
-            h_t, l_t = self.reset()
+            h_t, l_t, cell_state = self.reset()
             
             # save images and glimpse location
             locs = [];    
