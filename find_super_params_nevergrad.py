@@ -15,6 +15,7 @@ def call_rva(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidden=128,
 		loc_hidden=256
 		glimpse_hidden=128
 		num_glimpses=6
+		rnn_type='LSTMCell'
 		std=0.17
 		M=10
 		valid_size=0.1
@@ -32,7 +33,7 @@ def call_rva(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidden=128,
 		num_workers = 4;
 		shuffle = True;
 		show_sample = False;
-		dataset_name = 'CIFAR';
+		dataset_name = 'cluttered_MNIST';
 		is_train = True;
 		train_patience = 200;
 		optimizer = 'Adam';
@@ -62,10 +63,12 @@ def call_rva(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidden=128,
 	config.loc_hidden = loc_hidden;
 	config.glimpse_hidden = glimpse_hidden;
 	config.rnn_type = rnn_type;
+
 	# core network params
 	config.num_glimpses = num_glimpses;
 	config.hidden_size = loc_hidden + glimpse_hidden;
 	config.rnn_type = rnn_type;
+
 	# reinforce params
 	# gaussian policy standard deviation
 	config.std = std;
@@ -81,7 +84,7 @@ def call_rva(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidden=128,
 	config.num_workers = 4;
 	config.shuffle = True;
 	config.show_sample = False;
-	config.dataset_name = 'CIFAR';
+	config.dataset_name = dataset_name;
 
 	# training params
 	config.is_train = True;
@@ -111,7 +114,7 @@ def call_rva(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidden=128,
 	config.batchnorm_flag_h = batchnorm_flag_h
 	
 	# other params
-	config.use_gpu = True;
+	config.use_gpu = False;
 	config.best = True;
 	config.random_seed = 1;
 	config.data_dir = './data/';
@@ -170,26 +173,27 @@ def find_super_params():
 	Use ScrHammersleySearchPlusMiddlePoint (PlusMiddlePoint only if you have continuous parameters or good default values for discrete parameters).
 	"""
 	# dicrete
-	patch_size = inst.var.SoftmaxCategorical([6,8,10]) 
+	batch_size = inst.var.SoftmaxCategorical([128,256,512,1024]) 
+	patch_size = inst.var.SoftmaxCategorical(np.arange(1,3).tolist()) 
 	num_patches = inst.var.SoftmaxCategorical(np.arange(1,3).tolist()) 
-	num_glimpses = inst.var.SoftmaxCategorical(np.arange(5,15).tolist())
-	# glimpse_hidden = inst.var.SoftmaxCategorical(np.arange(128,5)) 
-	# loc_hidden = inst.var.SoftmaxCategorical(np.arange(192,15))
+	num_glimpses = inst.var.SoftmaxCategorical(np.arange(5,17,2).tolist())
+	glimpse_hidden = inst.var.SoftmaxCategorical([128,256,512,1024]) 
+	loc_hidden = inst.var.SoftmaxCategorical([128,256,512,1024])
 
-	# batchnorm_phi = inst.var.SoftmaxCategorical(["True", "False"])
-	# batchnorm_l = inst.var.SoftmaxCategorical(["True", "False"])
-	# batchnorm_g = inst.var.SoftmaxCategorical(["True", "False"])
-	# batchnorm_h = inst.var.SoftmaxCategorical(["True", "False"])
+	batchnorm_phi = inst.var.SoftmaxCategorical(["True", "False"])
+	batchnorm_l = inst.var.SoftmaxCategorical(["True", "False"])
+	batchnorm_g = inst.var.SoftmaxCategorical(["True", "False"])
+	#batchnorm_h = inst.var.SoftmaxCategorical(["True", "False"])
 
 	# glimpse_scale = inst.var.SoftmaxCategorical(np.arange(1,3,1).tolist())
 	# weight_decay = inst.var.SoftmaxCategorical(np.arange(0.0001,0.05,0.0005).tolist())
 	# dropout_phi = inst.var.SoftmaxCategorical(np.arange(0.1,0.3,0.1).tolist())
 	# dropout_l = inst.var.SoftmaxCategorical(np.arange(0,0.4,0.1).tolist())
 	#dropout_g = inst.var.SoftmaxCategorical(np.arange(0,0.5,0.1).tolist())
-	dropout_h = inst.var.SoftmaxCategorical([0,0.3])
+	# dropout_h = inst.var.SoftmaxCategorical([0,0.3])
 	
 	# alpha = inst.var.SoftmaxCategorical(np.arange(1,2,0.1).tolist())
-	gamma = inst.var.SoftmaxCategorical(np.arange(0.1,2,0.1).tolist()) 
+	# gamma = inst.var.SoftmaxCategorical(np.arange(0.1,2,0.1).tolist()) 
 
 	# continuous; the Gaussian method does not have truncated version, so it is unavailable
 	# glimpse_scale = inst.var.Gaussian(mean=2, std=2)  
@@ -207,10 +211,10 @@ def find_super_params():
 	# create the instrumented function
 	# put them in order, if it is discrete varible, only give the variable name; if it is continuous, give a pair;
 	# if it is constant, only give the constant
-	instrum = inst.Instrumentation(patch_size, num_patches, 256, 128, num_glimpses,
-		0.17, 10, 0.1, 256, 'True', 'True', 'True', 'True', 
-		2, 0.002, 0.1,  
-		0.3, 0.2, dropout_h, 1.4, gamma)
+	instrum = inst.Instrumentation(patch_size, num_patches, loc_hidden, glimpse_hidden, 
+		num_glimpses,0.17, 10, 0.1, batch_size, batchnorm_phi,
+		batchnorm_l, batchnorm_g, 'True', glimpse_scale, 0,
+		0, 0, 0, 0, 1.4, 0.9)
 
 	print(instrum.dimension)  
 
