@@ -4,7 +4,7 @@ import numpy as np
 from main import main
 
 from ax.service.managed_loop import optimize
-
+# the argument style should be changed, currently it does not work!!!!
 def call_rva(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidden=128, 
 	num_glimpses=6, std=0.17, M=10, valid_size=0.1, batch_size=256, batchnorm_flag_phi=True,
 	batchnorm_flag_l=True, batchnorm_flag_g=True, batchnorm_flag_h=True, glimpse_scale=2, weight_decay=0,
@@ -115,7 +115,7 @@ def call_rva(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidden=128,
 	config.batchnorm_flag_h = batchnorm_flag_h
 	
 	# other params
-	config.use_gpu = True;
+	config.use_gpu = False;
 	config.best = True;
 	config.random_seed = 1;
 	config.data_dir = './data/';
@@ -198,26 +198,22 @@ def find_super_params():
         {
             "name": "batchnorm_flag_phi",
             "type": "range",
-            "bounds": [False, True],
-            "value_type": "bool",
+            "bounds": [0, 1],            
         },
         {
             "name": "batchnorm_flag_l",
             "type": "range",
-            "bounds": [False, True],
-            "value_type": "bool",
+            "bounds": [0, 1],            
         },
         {
             "name": "batchnorm_flag_g",
             "type": "range",
-            "bounds": [False, True],
-            "value_type": "bool",
+            "bounds": [0, 1],            
         },
         {
             "name": "batchnorm_flag_h",
             "type": "range",
-            "bounds": [False, True],
-            "value_type": "bool",
+            "bounds": [0, 1],            
         },
         {
             "name": "glimpse_scale",
