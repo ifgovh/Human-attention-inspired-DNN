@@ -47,6 +47,7 @@ class Trainer(object):
         # core network params
         self.num_glimpses = config.num_glimpses
         self.hidden_size = config.loc_hidden + config.glimpse_hidden
+        self.rnn_type = config.rnn_type;
 
         # reinforce params
         self.std = config.std
@@ -296,20 +297,37 @@ class Trainer(object):
                 # extract the glimpses
                 locs = []
                 log_pi = []
-                baselines = []
-                for t in range(self.num_glimpses - 1):
-                    # forward pass through model
-                    h_t, l_t, b_t, p = self.model(x, l_t, h_t)
+                baselines = []                
 
-                    # store
-                    locs.append(l_t[0:9])
-                    baselines.append(b_t)
-                    log_pi.append(p)
+                if self.rnn_type == 'RNNCell':
+                    for t in range(self.num_glimpses - 1):
+                        # forward pass through model
+                        h_t, l_t, b_t, p = self.model(x, l_t, h_t)
 
-                # last iteration
-                h_t, l_t, b_t, log_probas, p = self.model(
-                    x, l_t, h_t, last=True
-                )
+                        # store
+                        locs.append(l_t[0:9])
+                        baselines.append(b_t)
+                        log_pi.append(p)
+
+                    # last iteration
+                    h_t, l_t, b_t, log_probas, p = self.model(
+                        x, l_t, h_t, last=True
+                    )
+                elif self.rnn_type == 'LSTMCell':
+                    for t in range(self.num_glimpses - 1):
+                            # forward pass through model
+                            h_t, l_t, b_t, p, cell_state = self.model(x, l_t, h_t, cell_state_prev=cell_state)
+
+                            # store
+                            locs.append(l_t[0:9])
+                            baselines.append(b_t)
+                            log_pi.append(p)
+
+                    # last iteration
+                    h_t, l_t, b_t, log_probas, p, cell_state = self.model(
+                        x, l_t, h_t, last=True, cell_state_prev=cell_state
+                    )
+
                 log_pi.append(p)
                 baselines.append(b_t)
                 locs.append(l_t[0:9])
@@ -417,19 +435,34 @@ class Trainer(object):
 
             # extract the glimpses
             log_pi = []
-            baselines = []
-            for t in range(self.num_glimpses - 1):
-                # forward pass through model
-                h_t, l_t, b_t, p = self.model(x, l_t, h_t)
+            baselines = []            
 
-                # store
-                baselines.append(b_t)
-                log_pi.append(p)
+            if self.rnn_type == 'RNNCell':
+                for t in range(self.num_glimpses - 1):
+                    # forward pass through model
+                    h_t, l_t, b_t, p = self.model(x, l_t, h_t)
+                    # store
+                    baselines.append(b_t)
+                    log_pi.append(p)
 
-            # last iteration
-            h_t, l_t, b_t, log_probas, p = self.model(
-                x, l_t, h_t, last=True
-            )
+                # last iteration
+                h_t, l_t, b_t, log_probas, p = self.model(
+                    x, l_t, h_t, last=True
+                )
+            elif self.rnn_type == 'LSTMCell':
+                for t in range(self.num_glimpses - 1):
+                    # forward pass through model
+                    h_t, l_t, b_t, p, cell_state = self.model(x, l_t, h_t, cell_state_prev=cell_state)
+                    # store
+                    baselines.append(b_t)
+                    log_pi.append(p)
+
+                # last iteration
+                h_t, l_t, b_t, log_probas, p, cell_state= self.model(
+                    x, l_t, h_t, last=True, cell_state_prev=cell_state
+                )
+
+            # store
             log_pi.append(p)
             baselines.append(b_t)
 
@@ -545,6 +578,30 @@ class Trainer(object):
                 x, l_t, h_t, last=True
             )
             
+            if self.rnn_type == 'RNNCell':
+                for t in range(self.num_glimpses - 1):
+                    # forward pass through model
+                    h_t, l_t, b_t, p = self.model(x, l_t, h_t)
+                    # store
+                    locs.append(l_t[0:9])
+
+                # last iteration
+                h_t, l_t, b_t, log_probas, p = self.model(
+                    x, l_t, h_t, last=True
+                )
+            elif self.rnn_type == 'LSTMCell':
+                for t in range(self.num_glimpses - 1):
+                    # forward pass through model
+                    h_t, l_t, b_t, p, cell_state = self.model(x, l_t, h_t, cell_state_prev=cell_state)
+                    # store
+                    locs.append(l_t[0:9])
+
+                # last iteration
+                h_t, l_t, b_t, log_probas, p, cell_state= self.model(
+                    x, l_t, h_t, last=True, cell_state_prev=cell_state
+                )
+
+
             log_probas = log_probas.view(
                 self.M, -1, log_probas.shape[-1]
             )

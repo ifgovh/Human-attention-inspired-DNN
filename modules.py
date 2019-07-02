@@ -290,13 +290,13 @@ class core_network(nn.Module):
             raise ValueError( """An invalid option for `--model` was supplied,
                              options are ['LSTMCell', 'RNNCell' ]""")            
         
-    def forward(self, g_t, h_t_prev):
+    def forward(self, g_t, h_t_prev, cell_state_prev=None):
         if self.rnn_type == 'RNNCell':
             h_t = self.rnn(g_t,h_t_prev)
+            return h_t
         elif self.rnn_type == 'LSTMCell':
-            h_t,_ = self.rnn(g_t,h_t_prev)
-
-        return h_t
+            h_t,cell_state = self.rnn(g_t,(h_t_prev,cell_state_prev))
+            return h_t, cell_state 
 
 class action_network(nn.Module):
     """

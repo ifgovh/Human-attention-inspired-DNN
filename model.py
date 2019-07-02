@@ -60,6 +60,9 @@ class RecurrentAttention(nn.Module):
           i.e. number of BPTT steps.
         """
         super(RecurrentAttention, self).__init__()
+        # RNN type
+        self.rnn_type = config.rnn_type;
+
         # when the locations l is defined by a Gaussian distribution
         self.std = std
 
@@ -74,7 +77,7 @@ class RecurrentAttention(nn.Module):
         self.classifier = action_network(hidden_size, num_classes)
         self.baseliner = baseline_network(hidden_size, 1)
 
-    def forward(self, x, l_t_prev, h_t_prev, last=False):
+    def forward(self, x, l_t_prev, h_t_prev, last=False, cell_state_prev=None):
         """
         Run the recurrent attention model for 1 timestep
         on the minibatch of images `x`.
@@ -111,7 +114,12 @@ class RecurrentAttention(nn.Module):
         - log_pi: a vector of length (B,).
         """
         g_t = self.sensor(x, l_t_prev)
-        h_t = self.rnn(g_t, h_t_prev)
+
+        if self.rnn_type == 'RNNCell':
+            h_t = self.rnn(g_t, h_t_prev)
+        elif self.rnn_type == 'LSTMCell':
+            h_t, cell_state = self.rnn(g_t, (h_t_prev,cell_state_prev))
+
         mu, l_t = self.locator(h_t, l_t_prev) #mu, l_t = self.locator(h_t)
         b_t = self.baseliner(h_t).squeeze()
 
@@ -142,8 +150,15 @@ class RecurrentAttention(nn.Module):
         log_pi = Cauchy(loc = mu, scale = self.gamma).log_prob(l_t - l_t_prev) # to do: use mu + noise to replace l_t
         log_pi = torch.sum(log_pi, dim=1)
 
-        if last:
-            log_probas = self.classifier(h_t)
-            return h_t, l_t, b_t, log_probas, log_pi
-
-        return h_t, l_t, b_t, log_pi
+        if self.rnn_type == 'RNNCell':
+            if last:
+              log_probas = self.classifier(h_t)
+              return h_t, l_t, b_t, log_probas, log_pi
+            elif:
+              return h_t, l_t, b_t, log_pi
+        elif self.rnn_type == 'LSTMCell':
+            if last:
+              log_probas = self.classifier(h_t)
+              return h_t, l_t, b_t, log_probas, log_pi, cell_state
+            elif:
+              return h_t, l_t, b_t, log_pi, cell_state
