@@ -245,7 +245,7 @@ class core_network(nn.Module):
     """
 
     # original version
-  
+    """
     def __init__(self, input_size, hidden_size, config):
         super(core_network, self).__init__()
         self.input_size = input_size
@@ -275,28 +275,28 @@ class core_network(nn.Module):
         h_t = self.dropout_h(h_t)
 
         return h_t
- 
-    # # new version
-    # def __init__(self, input_size, hidden_size, config):
-    #     super(core_network, self).__init__()
-    #     self.input_size = input_size
-    #     self.hidden_size = hidden_size        
-    #     self.dropout_h = config.dropout_h
-    #     self.rnn_type = config.rnn_type                
+   """
+    # new version
+    def __init__(self, input_size, hidden_size, config):
+        super(core_network, self).__init__()
+        self.input_size = input_size
+        self.hidden_size = hidden_size        
+        self.dropout_h = config.dropout_h
+        self.rnn_type = config.rnn_type                
 
-    #     if self.rnn_type in ['LSTMCell', 'RNNCell']:
-    #         self.rnn = getattr(nn, config.rnn_type)(input_size=input_size, hidden_size=hidden_size)
-    #     else:            
-    #         raise ValueError( """An invalid option for `--model` was supplied,
-    #                          options are ['LSTMCell', 'RNNCell' ]""")            
+        if self.rnn_type in ['LSTMCell', 'RNNCell']:
+            self.rnn = getattr(nn, config.rnn_type)(input_size=input_size, hidden_size=hidden_size)
+        else:            
+            raise ValueError( """An invalid option for `--model` was supplied,
+                             options are ['LSTMCell', 'RNNCell' ]""")            
         
-    # def forward(self, g_t, h_t_prev):
-    #     if self.rnn_type == 'RNNCell':
-    #         h_t = self.rnn(g_t,h_t_prev)
-    #     elif self.rnn_type == 'LSTMCell':
-    #         h_t,_ = self.rnn(g_t,h_t_prev)
+    def forward(self, g_t, h_t_prev):
+        if self.rnn_type == 'RNNCell':
+            h_t = self.rnn(g_t,h_t_prev)
+        elif self.rnn_type == 'LSTMCell':
+            h_t,_ = self.rnn(g_t,h_t_prev)
 
-    #     return h_t
+        return h_t
 
 class action_network(nn.Module):
     """
