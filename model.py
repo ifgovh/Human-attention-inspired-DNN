@@ -118,7 +118,7 @@ class RecurrentAttention(nn.Module):
         if self.rnn_type == 'RNNCell':
             h_t = self.rnn(g_t, h_t_prev)
         elif self.rnn_type == 'LSTMCell':
-            h_t, cell_state = self.rnn(g_t, (h_t_prev,cell_state_prev))
+            h_t, cell_state = self.rnn(g_t, h_t_prev, cell_state_prev)
 
         mu, l_t = self.locator(h_t, l_t_prev) #mu, l_t = self.locator(h_t)
         b_t = self.baseliner(h_t).squeeze()
