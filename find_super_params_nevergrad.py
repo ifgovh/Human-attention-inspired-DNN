@@ -61,11 +61,11 @@ def call_rva(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidden=128,
 	config.num_patches = num_patches;
 	config.loc_hidden = loc_hidden;
 	config.glimpse_hidden = glimpse_hidden;
-
+	config.rnn_type = rnn_type;
 	# core network params
 	config.num_glimpses = num_glimpses;
 	config.hidden_size = loc_hidden + glimpse_hidden;
-
+	config.rnn_type = rnn_type;
 	# reinforce params
 	# gaussian policy standard deviation
 	config.std = std;
