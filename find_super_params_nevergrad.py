@@ -61,13 +61,12 @@ def call_rva(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidden=128,
 	# # of downscaled patches per glimpse
 	config.num_patches = num_patches;
 	config.loc_hidden = loc_hidden;
-	config.glimpse_hidden = glimpse_hidden;
-	config.rnn_type = rnn_type;
+	config.glimpse_hidden = glimpse_hidden;	
 
 	# core network params
 	config.num_glimpses = num_glimpses;
 	config.hidden_size = loc_hidden + glimpse_hidden;
-	config.rnn_type = rnn_type;
+	config.rnn_type = config.rnn_type;
 
 	# reinforce params
 	# gaussian policy standard deviation
@@ -84,7 +83,7 @@ def call_rva(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidden=128,
 	config.num_workers = 4;
 	config.shuffle = True;
 	config.show_sample = False;
-	config.dataset_name = dataset_name;
+	config.dataset_name = 'cluttered_MNIST';
 
 	# training params
 	config.is_train = True;
@@ -114,7 +113,7 @@ def call_rva(patch_size=8, num_patches=1, loc_hidden=256, glimpse_hidden=128,
 	config.batchnorm_flag_h = batchnorm_flag_h
 	
 	# other params
-	config.use_gpu = False;
+	config.use_gpu = True;
 	config.best = True;
 	config.random_seed = 1;
 	config.data_dir = './data/';
@@ -174,18 +173,18 @@ def find_super_params():
 	"""
 	# dicrete
 	batch_size = inst.var.SoftmaxCategorical([128,256,512,1024]) 
-	patch_size = inst.var.SoftmaxCategorical(np.arange(1,3).tolist()) 
+	patch_size = inst.var.SoftmaxCategorical(np.arange(4,17,4).tolist()) 
 	num_patches = inst.var.SoftmaxCategorical(np.arange(1,3).tolist()) 
 	num_glimpses = inst.var.SoftmaxCategorical(np.arange(5,17,2).tolist())
-	glimpse_hidden = inst.var.SoftmaxCategorical([128,256,512,1024]) 
-	loc_hidden = inst.var.SoftmaxCategorical([128,256,512,1024])
+	glimpse_hidden = inst.var.SoftmaxCategorical([128,256,512]) 
+	loc_hidden = inst.var.SoftmaxCategorical([128,256])
 
 	batchnorm_phi = inst.var.SoftmaxCategorical(["True", "False"])
 	batchnorm_l = inst.var.SoftmaxCategorical(["True", "False"])
 	batchnorm_g = inst.var.SoftmaxCategorical(["True", "False"])
-	#batchnorm_h = inst.var.SoftmaxCategorical(["True", "False"])
+	#batchnorm_h = inst.var.SoftmaxCategorical(["True", "False"]) # not available in built-in RNN
 
-	# glimpse_scale = inst.var.SoftmaxCategorical(np.arange(1,3,1).tolist())
+	glimpse_scale = inst.var.SoftmaxCategorical(np.arange(1,3,1).tolist())
 	# weight_decay = inst.var.SoftmaxCategorical(np.arange(0.0001,0.05,0.0005).tolist())
 	# dropout_phi = inst.var.SoftmaxCategorical(np.arange(0.1,0.3,0.1).tolist())
 	# dropout_l = inst.var.SoftmaxCategorical(np.arange(0,0.4,0.1).tolist())
@@ -214,7 +213,7 @@ def find_super_params():
 	instrum = inst.Instrumentation(patch_size, num_patches, loc_hidden, glimpse_hidden, 
 		num_glimpses,0.17, 10, 0.1, batch_size, batchnorm_phi,
 		batchnorm_l, batchnorm_g, 'True', glimpse_scale, 0,
-		0, 0, 0, 0, 1.4, 0.9)
+		0, 0, 0, 0, 1.4, 0.9)	
 
 	print(instrum.dimension)  
 

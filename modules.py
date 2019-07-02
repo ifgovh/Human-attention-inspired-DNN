@@ -62,7 +62,7 @@ class retina(object):
             k = phi[i].shape[-1] // self.g
             phi[i] = F.avg_pool2d(phi[i], k)
 
-        # concatenate into a single tensor and flatten
+        # concatenate into a single tensor and flatten        
         phi = torch.cat(phi, 1)
         phi = phi.view(phi.shape[0], -1)
         
