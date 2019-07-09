@@ -172,19 +172,19 @@ def find_super_params():
 	Use ScrHammersleySearchPlusMiddlePoint (PlusMiddlePoint only if you have continuous parameters or good default values for discrete parameters).
 	"""
 	# dicrete
-	batch_size = inst.var.SoftmaxCategorical([128,256,512,1024]) 
-	patch_size = inst.var.SoftmaxCategorical(np.arange(4,17,4).tolist()) 
-	num_patches = inst.var.SoftmaxCategorical(np.arange(1,3).tolist()) 
+	batch_size = inst.var.SoftmaxCategorical([256,512,1024]) 
+	patch_size = inst.var.SoftmaxCategorical(np.arange(10,17,2).tolist()) 
+	#num_patches = inst.var.SoftmaxCategorical(np.arange(1,3).tolist()) 
 	num_glimpses = inst.var.SoftmaxCategorical(np.arange(5,17,2).tolist())
 	glimpse_hidden = inst.var.SoftmaxCategorical([128,256,512]) 
 	loc_hidden = inst.var.SoftmaxCategorical([128,256])
 
-	batchnorm_phi = inst.var.SoftmaxCategorical(["True", "False"])
-	batchnorm_l = inst.var.SoftmaxCategorical(["True", "False"])
-	batchnorm_g = inst.var.SoftmaxCategorical(["True", "False"])
+	#batchnorm_phi = inst.var.SoftmaxCategorical(["True", "False"])
+	#batchnorm_l = inst.var.SoftmaxCategorical(["True", "False"])
+	#batchnorm_g = inst.var.SoftmaxCategorical(["True", "False"])
 	#batchnorm_h = inst.var.SoftmaxCategorical(["True", "False"]) # not available in built-in RNN
 
-	glimpse_scale = inst.var.SoftmaxCategorical(np.arange(1,3,1).tolist())
+	#glimpse_scale = inst.var.SoftmaxCategorical(np.arange(1,3,1).tolist())
 	# weight_decay = inst.var.SoftmaxCategorical(np.arange(0.0001,0.05,0.0005).tolist())
 	# dropout_phi = inst.var.SoftmaxCategorical(np.arange(0.1,0.3,0.1).tolist())
 	# dropout_l = inst.var.SoftmaxCategorical(np.arange(0,0.4,0.1).tolist())
@@ -210,9 +210,9 @@ def find_super_params():
 	# create the instrumented function
 	# put them in order, if it is discrete varible, only give the variable name; if it is continuous, give a pair;
 	# if it is constant, only give the constant
-	instrum = inst.Instrumentation(patch_size, num_patches, loc_hidden, glimpse_hidden, 
-		num_glimpses,0.17, 10, 0.1, batch_size, batchnorm_phi,
-		batchnorm_l, batchnorm_g, 'True', glimpse_scale, 0,
+	instrum = inst.Instrumentation(patch_size, 2, loc_hidden, glimpse_hidden, 
+		num_glimpses,0.17, 10, 0.1, batch_size, 'True',
+		'True', 'True', 'True', 2, 0,
 		0, 0, 0, 0, 1.4, 0.9)	
 
 	print(instrum.dimension)  
@@ -231,7 +231,7 @@ def find_super_params():
 	# you can still access the instrumentation instance will ifunc.instrumentation
 
 	optimizer = optimizerlib.PortfolioDiscreteOnePlusOne(dimension=ifunc.dimension, 
-		budget=50, num_workers=2) #TwoPointsDE
+		budget=20, num_workers=2) #TwoPointsDE
 	# simple example
 	#recommendation = optimizer.optimize(ifunc)
 	# using several workers
