@@ -85,7 +85,7 @@ train_arg.add_argument('--train_patience', type=int, default=50,
 train_arg.add_argument('--optimizer', type=str, default='Adam',
                        help='The name of optimizer')
 train_arg.add_argument('--loss_fun_action', type=str, default='nll',
-                       help='The name of loss fucntion of action nn')
+                       help='The name of loss fucntion of action nn')# To do: use cross_entropy
 train_arg.add_argument('--loss_fun_baseline', type=str, default='mse',
                        help='The name of loss fucntion of baseline nn')
 train_arg.add_argument('--weight_decay', type=float, default='0',

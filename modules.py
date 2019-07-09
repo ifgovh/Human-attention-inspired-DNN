@@ -212,6 +212,7 @@ class glimpse_network(nn.Module):
         return g_t
 
 
+
 class core_network(nn.Module):
     """
     An RNN that maintains an internal state that integrates
