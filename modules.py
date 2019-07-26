@@ -86,9 +86,8 @@ class retina(object):
         """
         B, C, H, W = x.shape
         # calculate coordinate for each batch samle (padding considered)
+        l = l.add_(1).mul_(H).div_(2)
         from_x, from_y = l[:, 0], l[:, 1]
-        # normalize size
-        size_norm = size/H        
         # build fluid-flow grid
         if self.use_gpu:
             theta = torch.cuda.FloatTensor(B*2,3).fill_(0)
@@ -104,7 +103,7 @@ class retina(object):
               
 
         grid = F.affine_grid(theta, torch.Size((B,C,size,size)))
-        
+        import pdb; pdb.set_trace() 
         return F.grid_sample(x,grid,padding_mode='zeros').squeeze() #padding_mode='reflection'    
 
 
