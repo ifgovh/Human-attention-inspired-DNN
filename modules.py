@@ -87,19 +87,18 @@ class retina(object):
         B, C, H, W = x.shape
         # calculate coordinate for each batch samle (padding considered)
         from_x, from_y = l[:, 0], l[:, 1]
-        # normalize size
-        size_norm = size/H        
+           
         # build fluid-flow grid
         if self.use_gpu:
             theta = torch.cuda.FloatTensor(B*2,3).fill_(0)
         else:
             theta = torch.zeros(B*2,3)
 
-        # see youdao cloud note about affine transform for this algorithm
-        theta[torch.arange(0,B*2,2),0] = 1;
-        theta[torch.arange(1,B*2,2),1] = 1;
-        theta[torch.arange(0,B*2,2),2] = -from_x;
-        theta[torch.arange(1,B*2,2),2] = -from_y;
+        # see onenote of affine transform for this algorithm (Pytorch theta is different with cv2's affine matrix)
+        theta[torch.arange(0,B*2,2),0] = size / W
+        theta[torch.arange(1,B*2,2),1] = size / H
+        theta[torch.arange(0,B*2,2),2] = from_x
+        theta[torch.arange(1,B*2,2),2] = from_y
         theta = theta.reshape((B,2,3))
               
 
