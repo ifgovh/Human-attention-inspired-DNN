@@ -1,6 +1,6 @@
 # Recurrent Visual Attention
 
-This is a **PyTorch** implementation of human-attention inspired image classification network. We test the dynamics of the agent, determin if it is driven by fractional dynamics. 
+This is a **PyTorch** implementation of human-attention inspired image classification network. We test the dynamics of the agent, determin if it is driven by fractional dynamics. We are also rying to improve the perfomance.
 ## Requirements
 
 - python 3.5+
